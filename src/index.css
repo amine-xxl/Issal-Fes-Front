@@ -647,7 +647,7 @@
    ============================================================ */
 
 .home-stats {
-  background: rgba(188, 200, 55, 0.68);
+  background: rgba(188, 200, 55, 0.8);
 }
 
 .home-stat-number {
@@ -989,7 +989,7 @@
   gap: 10px;
   background: transparent;
   border: 2px solid rgba(204, 251, 254, 0.55);
-  color: #fef3c7;
+  color: #f8faff;
   text-decoration: none;
   padding: 15px 38px;
   border-radius: 50px;
@@ -1399,6 +1399,25 @@
   line-height: 1.6;
 }
 
+[data-theme='dark'] .news-alert {
+  background: rgba(24, 38, 58, 0.78);
+  border: 1px solid rgba(96, 129, 156, 0.3);
+  border-left: 4px solid #60A5FA;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
+}
+
+[data-theme='dark'] .news-alert-icon {
+  color: #93C5FD;
+}
+
+[data-theme='dark'] .news-alert-title {
+  color: #E2E8F0;
+}
+
+[data-theme='dark'] .news-alert-desc {
+  color: #CBD5E1;
+}
+
 /* Article vedette */
 .news-featured {
   background: rgba(255, 255, 255, 0.95);
@@ -1553,8 +1572,29 @@
   display: none;
 }
 
-.news-card-img-wrap--fallback .news-card-img-fallback {
-  opacity: 1;
+.news-card-watermark {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  color: var(--brand);
+  opacity: 0.15;
+  transform: rotate(-15deg);
+  pointer-events: none;
+  z-index: 0;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.news-card:hover .news-card-watermark {
+  transform: rotate(-5deg) scale(1.1);
+  opacity: 0.25;
+}
+
+[data-theme='dark'] .news-card-watermark {
+  opacity: 0.1;
+}
+
+[data-theme='dark'] .news-card:hover .news-card-watermark {
+  opacity: 0.15;
 }
 
 .news-card-body {
@@ -2136,9 +2176,12 @@
 }
 
 [data-theme='dark'] .home-section,
-[data-theme='dark'] .contact-body,
-[data-theme='dark'] .home-stats {
+[data-theme='dark'] .contact-body {
   background: rgba(10, 15, 30, 0.85);
+}
+
+[data-theme='dark'] .home-stats {
+  background: rgba(163, 175, 30, 0.6); /* Garde une teinte verte en mode sombre */
 }
 
 [data-theme='dark'] .home-feature-card,
@@ -2227,4 +2270,391 @@
 .profile-dropdown__item-icon--logout {
   background: rgba(239, 68, 68, 0.1);
   color: #ef4444;
+}
+
+/* Fond sombre derrière le modal */
+.modal-backdrop-custom {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Carte du modal */
+.modal-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================================
+   ADMIN DASHBOARD & AJOUT NEWS — Fully custom (no Bootstrap table)
+   ============================================================ */
+
+/* ── Tab Pills ── */
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.admin-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border-radius: 100px;
+  border: 2px solid rgba(188, 200, 55, 0.25);
+  background: rgba(255, 255, 255, 0.85);
+  color: #555;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.admin-tab-btn:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+  background: rgba(188, 200, 55, 0.06);
+  transform: translateY(-2px);
+}
+
+.admin-tab-btn--active {
+  background: var(--brand) !important;
+  border-color: var(--brand) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 16px rgba(188, 200, 55, 0.35);
+}
+
+/* ── Custom Table ── */
+.admin-table-wrap {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
+.admin-custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.admin-custom-table thead {
+  background: var(--brand);
+}
+
+.admin-custom-table thead th {
+  padding: 14px 18px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  border: none;
+  text-align: left;
+}
+
+.admin-custom-table tbody tr {
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid #eef2f7;
+  transition: background 0.2s ease;
+}
+
+.admin-custom-table tbody tr:hover {
+  background: rgba(188, 200, 55, 0.06);
+}
+
+.admin-custom-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.admin-custom-table td {
+  padding: 14px 18px;
+  color: #333;
+  vertical-align: middle;
+}
+
+.admin-table-empty {
+  text-align: center;
+  padding: 40px 18px !important;
+  color: #999;
+  font-style: italic;
+}
+
+/* ── Action Buttons (edit / delete) ── */
+.admin-action-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-action-btn:hover {
+  transform: translateY(-2px);
+}
+
+.admin-action-btn--edit {
+  background: rgba(251, 191, 36, 0.15);
+  color: #b45309;
+}
+
+.admin-action-btn--edit:hover {
+  background: rgba(251, 191, 36, 0.3);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.25);
+}
+
+.admin-action-btn--delete {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.admin-action-btn--delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+/* ── Badges ── */
+.admin-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 100px;
+  text-transform: capitalize;
+}
+
+.admin-badge--info {
+  background: rgba(59, 130, 246, 0.12);
+  color: #2563eb;
+}
+
+.admin-badge--warning {
+  background: rgba(251, 191, 36, 0.15);
+  color: #b45309;
+}
+
+.admin-badge--danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+}
+
+.admin-badge--success {
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+}
+
+.admin-badge--muted {
+  background: rgba(107, 114, 128, 0.12);
+  color: #6b7280;
+}
+
+
+/* ════════════════════════════════════════════════
+   DARK THEME — Admin
+   ════════════════════════════════════════════════ */
+
+/* Tab pills */
+[data-theme="dark"] .admin-tab-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(188, 200, 55, 0.2);
+  color: #ccc;
+}
+
+[data-theme="dark"] .admin-tab-btn:hover {
+  background: rgba(188, 200, 55, 0.1);
+  color: var(--brand);
+}
+
+[data-theme="dark"] .admin-tab-btn--active {
+  background: var(--brand) !important;
+  color: #fff !important;
+}
+
+/* Table wrapper */
+[data-theme="dark"] .admin-table-wrap {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Table header */
+[data-theme="dark"] .admin-custom-table thead {
+  background: var(--brand-dark);
+}
+
+/* Table body rows */
+[data-theme="dark"] .admin-custom-table tbody tr {
+  background: #1a1d21;
+  border-bottom-color: #2a2d31;
+}
+
+[data-theme="dark"] .admin-custom-table tbody tr:hover {
+  background: #22262b;
+}
+
+/* Table cells */
+[data-theme="dark"] .admin-custom-table td {
+  color: #d4d4d8;
+}
+
+[data-theme="dark"] .admin-table-empty {
+  color: #6b7280;
+}
+
+/* Action buttons in dark */
+[data-theme="dark"] .admin-action-btn--edit {
+  background: rgba(251, 191, 36, 0.1);
+  color: #fbbf24;
+}
+
+[data-theme="dark"] .admin-action-btn--edit:hover {
+  background: rgba(251, 191, 36, 0.2);
+}
+
+[data-theme="dark"] .admin-action-btn--delete {
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+}
+
+[data-theme="dark"] .admin-action-btn--delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* Badges in dark */
+[data-theme="dark"] .admin-badge--info {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .admin-badge--warning {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+}
+
+[data-theme="dark"] .admin-badge--danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+[data-theme="dark"] .admin-badge--success {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+}
+
+[data-theme="dark"] .admin-badge--muted {
+  background: rgba(107, 114, 128, 0.15);
+  color: #9ca3af;
+}
+
+/* ============================================================
+   TOAST NOTIFICATION (AUTH)
+   ============================================================ */
+.auth-toast {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 9999;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #16a34a; /* Green success border */
+  border-radius: 8px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  min-width: 280px;
+  animation: toast-enter 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.auth-toast-icon {
+  color: #16a34a;
+}
+
+.auth-toast-text {
+  color: #16a34a;
+}
+
+.auth-toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background: #16a34a;
+  animation: toast-progress 4s linear forwards;
+}
+
+/* ── Dark Mode Toast ── */
+[data-theme='dark'] .auth-toast {
+  background: rgba(20, 26, 43, 0.95); /* Matches --bg-card */
+  border-color: #22c55e;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+}
+
+[data-theme='dark'] .auth-toast-icon,
+[data-theme='dark'] .auth-toast-text {
+  color: #4ade80; /* Lighter green for dark theme */
+}
+
+[data-theme='dark'] .auth-toast-progress {
+  background: #4ade80;
+}
+
+/* Animations */
+@keyframes toast-enter {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* ============================================================
+   TOP LOADING BAR (PAGE TRANSITIONS)
+   ============================================================ */
+.top-loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: var(--brand);
+  z-index: 999999;
+  animation: page-load 0.8s ease-out forwards;
+}
+
+@keyframes page-load {
+  0% {
+    width: 0%;
+    opacity: 1;
+  }
+  70% {
+    width: 80%;
+    opacity: 1;
+  }
+  100% {
+    width: 100%;
+    opacity: 0;
+  }
 }

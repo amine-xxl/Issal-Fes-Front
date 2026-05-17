@@ -438,7 +438,7 @@ export default function Home() {
           <div className="home-cta-stars mb-3">✦ ✦ ✦</div>
 
           <span className="home-cta-subtitle d-inline-block mb-3">
-            Bienvenue dans la Ville Millénaire
+            <h4>Bienvenue dans la Ville Millénaire</h4>
           </span>
 
           <h2 className="home-cta-title mb-3">
@@ -447,8 +447,8 @@ export default function Home() {
           </h2>
 
           <p className="home-cta-desc mx-auto mb-4">
-            De la médina antique aux boulevards modernes, City Trans Fes
-            vous transporte avec élégance et fiabilité.
+            <h3>De la médina antique aux boulevards modernes, Issal Fes
+            vous transporte avec élégance et fiabilité.</h3>
           </p>
 
           {/* Séparateur doré */}

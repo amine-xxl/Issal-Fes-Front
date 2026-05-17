@@ -4,65 +4,76 @@ import { Collapse } from "bootstrap";
 import logo from "../assets/Logo.png";
 import "../index.css";
 import {
-  PersonCircle, BoxArrowInRight, PersonPlusFill,
-  MoonFill, SunFill, BoxArrowRight, TicketFill,
-  InfoCircleFill, BusFrontFill, HouseFill,
-  Newspaper, TelephoneFill, ExclamationCircleFill,
-  PersonFill
+  PersonCircle,
+  BoxArrowInRight,
+  PersonPlusFill,
+  MoonFill,
+  SunFill,
+  BoxArrowRight,
+  TicketFill,
+  InfoCircleFill,
+  BusFrontFill,
+  HouseFill,
+  Newspaper,
+  TelephoneFill,
+  ExclamationCircleFill,
+  PersonFill,
+  ShieldFill,
 } from "react-bootstrap-icons";
 import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
-  const collapseRef = useRef(null)
-  const togglerRef  = useRef(null)
-  const dropdownRef = useRef(null)
-  const navbarRef   = useRef(null)  // ← ref pour détecter clic extérieur mobile
-  const navigate    = useNavigate()
+  const collapseRef = useRef(null);
+  const togglerRef = useRef(null);
+  const dropdownRef = useRef(null);
+  const navbarRef = useRef(null); // ← ref pour détecter clic extérieur mobile
+  const navigate = useNavigate();
 
   // ── Contexte global : user connecté + fonction logout ──
-  const { user, logout } = useAuth()
+  const { user, logout } = useAuth();
 
   // ── Theme clair/sombre ──
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light")
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme)
-    localStorage.setItem("theme", theme)
-  }, [theme])
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   const toggleTheme = (e) => {
-    e.stopPropagation()
-    setTheme(prev => prev === "light" ? "dark" : "light")
-  }
+    e.stopPropagation();
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
 
   // ── État ouvert/fermé du dropdown account ──
-  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   function toggleDropdown(e) {
-    e.stopPropagation()
-    setDropdownOpen(prev => !prev)
+    e.stopPropagation();
+    setDropdownOpen((prev) => !prev);
   }
 
   // ── Fermer le dropdown si clic en dehors ──
   const handleClickOutside = useCallback((e) => {
     if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-      setDropdownOpen(false)
+      setDropdownOpen(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [handleClickOutside])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [handleClickOutside]);
 
   // ── Fermer le menu mobile Bootstrap ──
   function closeMenu() {
     if (collapseRef.current) {
-      const instance = Collapse.getInstance(collapseRef.current) ||
-        new Collapse(collapseRef.current, { toggle: false })
-      instance.hide()
+      const instance =
+        Collapse.getInstance(collapseRef.current) ||
+        new Collapse(collapseRef.current, { toggle: false });
+      instance.hide();
     }
     if (togglerRef.current) {
-      togglerRef.current.setAttribute("aria-expanded", "false")
+      togglerRef.current.setAttribute("aria-expanded", "false");
     }
   }
 
@@ -70,30 +81,30 @@ export default function Navbar() {
   useEffect(() => {
     function handleOutsideNavClick(e) {
       if (navbarRef.current && !navbarRef.current.contains(e.target)) {
-        closeMenu()
+        closeMenu();
       }
     }
-    document.addEventListener("mousedown", handleOutsideNavClick)
-    document.addEventListener("touchstart", handleOutsideNavClick) // ← support mobile
+    document.addEventListener("mousedown", handleOutsideNavClick);
+    document.addEventListener("touchstart", handleOutsideNavClick); // ← support mobile
     return () => {
-      document.removeEventListener("mousedown", handleOutsideNavClick)
-      document.removeEventListener("touchstart", handleOutsideNavClick)
-    }
-  }, [])
+      document.removeEventListener("mousedown", handleOutsideNavClick);
+      document.removeEventListener("touchstart", handleOutsideNavClick);
+    };
+  }, []);
 
   // ── Naviguer depuis le dropdown et tout fermer ──
   function handleDropdownNav(path) {
-    setDropdownOpen(false)
-    closeMenu()
-    navigate(path)
+    setDropdownOpen(false);
+    closeMenu();
+    navigate(path);
   }
 
   // ── Logout : vider le contexte + rediriger ──
   function handleLogout() {
-    logout()
-    setDropdownOpen(false)
-    closeMenu()
-    navigate('/')
+    logout();
+    setDropdownOpen(false);
+    closeMenu();
+    navigate("/");
   }
 
   return (
@@ -102,7 +113,6 @@ export default function Navbar() {
       className="navbar navbar-expand-lg bg-body-tertiary fixed-top shadow p-2 navbar-enter"
     >
       <div className="container-fluid">
-
         {/* ── Logo ── */}
         <Link to="/" className="navbar-brand" onClick={closeMenu}>
           <img src={logo} alt="City Trans Fes" width="60" height="60" />
@@ -121,62 +131,89 @@ export default function Navbar() {
           <span className="navbar-toggler-icon" />
         </button>
 
-        <div className="collapse navbar-collapse" id="navbarNav" ref={collapseRef}>
-
+        <div
+          className="collapse navbar-collapse"
+          id="navbarNav"
+          ref={collapseRef}
+        >
           {/* ── Liens principaux (gauche) ── */}
           <ul className="navbar-nav me-auto">
-
             {/* Home */}
             <li className="nav-item nav-item-stagger" style={{ "--i": 1 }}>
               <Link to="/" className="nav-link mx-2" onClick={closeMenu}>
-                <HouseFill className="me-1" />Home
+                <HouseFill className="me-1" />
+                Home
               </Link>
             </li>
 
             {/* Tickets — visible pour tout le monde (connecté ou non) */}
             <li className="nav-item nav-item-stagger" style={{ "--i": 2 }}>
               <Link to="/Tickets" className="nav-link mx-2" onClick={closeMenu}>
-                <TicketFill className="me-1" />Tickets
+                <TicketFill className="me-1" />
+                Tickets
               </Link>
             </li>
 
             {/* Infos Pro — visible SEULEMENT pour les chauffeurs connectés */}
-            {user && user.role === 'chauffeur' && (
+            {user && user.role === "chauffeur" && (
               <li className="nav-item nav-item-stagger" style={{ "--i": 3 }}>
-                <Link to="/InfosPro" className="nav-link mx-2" onClick={closeMenu}>
-                  <InfoCircleFill className="me-1" />Infos Pro
+                <Link
+                  to="/InfosPro"
+                  className="nav-link mx-2"
+                  onClick={closeMenu}
+                >
+                  <InfoCircleFill className="me-1" />
+                  Infos Pro
                 </Link>
               </li>
             )}
 
+            {/* Dashboard — visible SEULEMENT pour l'admin */}
+            {user && user.role === "admin" && (
+              <li className="nav-item nav-item-stagger" style={{ "--i": 3 }}>
+                <Link to="/Admin" className="nav-link mx-2" onClick={closeMenu}>
+                  <ShieldFill className="me-1" />
+                  Dashboard
+                </Link>
+              </li>
+            )}
             {/* News */}
             <li className="nav-item nav-item-stagger" style={{ "--i": 4 }}>
               <Link to="/News" className="nav-link mx-2" onClick={closeMenu}>
-                <Newspaper className="me-1" />News
+                <Newspaper className="me-1" />
+                News
               </Link>
             </li>
 
             {/* Contact */}
             <li className="nav-item nav-item-stagger" style={{ "--i": 5 }}>
               <Link to="/Contact" className="nav-link mx-2" onClick={closeMenu}>
-                <TelephoneFill className="me-1" />Contact
+                <TelephoneFill className="me-1" />
+                Contact
               </Link>
             </li>
 
             {/* About */}
             <li className="nav-item nav-item-stagger" style={{ "--i": 6 }}>
               <Link to="/About" className="nav-link mx-2" onClick={closeMenu}>
-                <ExclamationCircleFill className="me-1" />About
+                <ExclamationCircleFill className="me-1" />
+                About
               </Link>
             </li>
           </ul>
 
           {/* ── Droite : theme switch + dropdown ── */}
           <ul className="navbar-nav ms-auto align-items-lg-center flex-row gap-2">
-
             {/* Theme switch */}
-            <li className="nav-item nav-item-stagger d-flex align-items-center me-2" style={{ "--i": 7 }}>
-              <button className="theme-switch" onClick={toggleTheme} aria-label="Toggle dark mode">
+            <li
+              className="nav-item nav-item-stagger d-flex align-items-center me-2"
+              style={{ "--i": 7 }}
+            >
+              <button
+                className="theme-switch"
+                onClick={toggleTheme}
+                aria-label="Toggle dark mode"
+              >
                 <MoonFill className="theme-icon-moon" size={14} />
                 <SunFill className="theme-icon-sun" size={14} />
                 <span className="theme-switch-thumb" />
@@ -206,13 +243,12 @@ export default function Navbar() {
                   <PersonCircle size={24} className="account-icon" />
                 )}
                 <span className="d-lg-none ms-2">
-                  {user ? user.name.split(' ')[0] : 'Account'}
+                  {user ? user.name.split(" ")[0] : "Account"}
                 </span>
               </button>
 
               {/* ── Panel dropdown ── */}
               <div className={`profile-dropdown${dropdownOpen ? " open" : ""}`}>
-
                 {/* ════════════════════════
                     CAS 1 : CONNECTÉ
                 ════════════════════════ */}
@@ -227,11 +263,14 @@ export default function Navbar() {
                       </div>
                       <div>
                         <p className="profile-dropdown__welcome">
-                          Bienvenue, {user.name.split(' ')[0]} !
+                          Bienvenue, {user.name.split(" ")[0]} !
                         </p>
                         <p className="profile-dropdown__subtitle">
-                          <BusFrontFill className="me-1" style={{ color: 'var(--brand)' }} />
-                          {user.role === 'client' ? ' Passager' : ' Chauffeur'}
+                          <BusFrontFill
+                            className="me-1"
+                            style={{ color: "var(--brand)" }}
+                          />
+                          {user.role === "client" ? " Passager" : user.role === "chauffeur" ? " Chauffeur" : " Admin"}
                         </p>
                       </div>
                     </div>
@@ -241,26 +280,32 @@ export default function Navbar() {
                     {/* Infos du compte — accessible pour client ET chauffeur */}
                     <button
                       className="profile-dropdown__item"
-                      onClick={() => handleDropdownNav('/UserInfo')}
+                      onClick={() => handleDropdownNav("/UserInfo")}
                     >
                       <span className="profile-dropdown__item-icon profile-dropdown__item-icon--info">
                         <PersonFill size={16} />
                       </span>
-                      <span className="profile-dropdown__item-text">Infos du Compte</span>
+                      <span className="profile-dropdown__item-text">
+                        Infos du Compte
+                      </span>
                     </button>
 
                     <div className="profile-dropdown__divider" />
 
                     {/* Logout */}
-                    <button className="profile-dropdown__item" onClick={handleLogout}>
+                    <button
+                      className="profile-dropdown__item"
+                      onClick={handleLogout}
+                    >
                       <span className="profile-dropdown__item-icon profile-dropdown__item-icon--logout">
                         <BoxArrowRight size={16} />
                       </span>
-                      <span className="profile-dropdown__item-text">Se déconnecter</span>
+                      <span className="profile-dropdown__item-text">
+                        Se déconnecter
+                      </span>
                     </button>
                   </>
                 ) : (
-
                   /* ════════════════════════
                       CAS 2 : NON CONNECTÉ
                   ════════════════════════ */
@@ -283,7 +328,7 @@ export default function Navbar() {
                     {/* Login */}
                     <button
                       className="profile-dropdown__item"
-                      onClick={() => handleDropdownNav('/Login')}
+                      onClick={() => handleDropdownNav("/Login")}
                     >
                       <span className="profile-dropdown__item-icon profile-dropdown__item-icon--login">
                         <BoxArrowInRight size={16} />
@@ -294,21 +339,22 @@ export default function Navbar() {
                     {/* Signup */}
                     <button
                       className="profile-dropdown__item"
-                      onClick={() => handleDropdownNav('/Signup')}
+                      onClick={() => handleDropdownNav("/Signup")}
                     >
                       <span className="profile-dropdown__item-icon profile-dropdown__item-icon--signup">
                         <PersonPlusFill size={16} />
                       </span>
-                      <span className="profile-dropdown__item-text">Sign Up</span>
+                      <span className="profile-dropdown__item-text">
+                        Sign Up
+                      </span>
                     </button>
                   </>
                 )}
-
               </div>
             </li>
           </ul>
         </div>
       </div>
     </nav>
-  )
+  );
 }

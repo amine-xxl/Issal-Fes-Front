@@ -17,7 +17,7 @@ export default function UserInfo() {
 
   return (
     <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '80vh', marginTop: '55px' }}>
-      <div className="auth-card p-4 p-md-5 shadow-lg w-100" style={{ maxWidth: 480 }}>
+      <div className="auth-card p-4 p-md-5 w-100" style={{ maxWidth: 480 }}>
 
         {/* Avatar avec initiale */}
         <div className="text-center mb-4">
@@ -27,7 +27,7 @@ export default function UserInfo() {
           <h4 className="fw-bold">{user.name}</h4>
           {/* Badge rôle */}
           <span className="about-role-badge">
-            {user.role === 'client' ? ' Passager' : ' Chauffeur'}
+            {user.role === "client" ? " Passager" : user.role === "chauffeur" ? " Chauffeur" : " Admin"}
           </span>
         </div>
 
@@ -66,7 +66,7 @@ export default function UserInfo() {
             <div>
               <h6 className="contact-info-title">Rôle</h6>
               <p className="contact-info-text mb-0">
-                {user.role === 'client' ? 'Passager (Client)' : 'Chauffeur'}
+                {user.role === "client" ? " Passager" : user.role === "chauffeur" ? " Chauffeur" : " Admin"}
               </p>
             </div>
           </div>

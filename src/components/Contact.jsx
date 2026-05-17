@@ -83,35 +83,35 @@ export default function Contact() {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: null }));
   }
 
-  /* ── Validation simple avant envoi ── */
-  function validate() {
-    const newErrors = {};
-    if (!form.name.trim()) newErrors.name = "Votre nom est requis.";
-    if (!form.email.trim()) newErrors.email = "Votre email est requis.";
-    else if (!/\S+@\S+\.\S+/.test(form.email))
-      newErrors.email = "Format d'email invalide.";
-    if (!form.subject) newErrors.subject = "Veuillez choisir un sujet.";
-    if (!form.message.trim())
-      newErrors.message = "Le message ne peut pas être vide.";
-    return newErrors;
-  }
-
-  /* ── Simule l'envoi du formulaire (pas de vrai backend) ── */
+  /* ── Envoi du formulaire avec gestion des erreurs Laravel ── */
   function handleSubmit(e) {
     e.preventDefault();
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
     setStatus("loading");
-    /* Efface tout timeout précédent */
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    /* Simulation d'un délai réseau de 1.5 secondes */
-    timeoutRef.current = setTimeout(() => {
-      /* Succès simulé à 90% du temps, erreur à 10% pour démonstration */
-      setStatus(Math.random() > 0.1 ? "success" : "error");
-    }, 1500);
+    setErrors({});
+
+    fetch("http://127.0.0.1:8000/api/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(form),
+    })
+      .then(async (res) => {
+        const data = await res.json().catch(() => null);
+        if (res.ok) {
+          setStatus("success");
+          setErrors({});
+        } else if (res.status === 422 && data && data.errors) {
+          setErrors(data.errors);
+          setStatus("error");
+        } else {
+          setStatus("error");
+        }
+      })
+      .catch(() => {
+        setStatus("error");
+      });
   }
 
   /* ── Réinitialise le formulaire après succès ── */
