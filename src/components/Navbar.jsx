@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Collapse } from "bootstrap";
-import logo from "../assets/Logo.png";
+import logo from "../assets/Logo1.png";
 import "../index.css";
 import {
   PersonCircle,
@@ -115,7 +115,7 @@ export default function Navbar() {
       <div className="container-fluid">
         {/* ── Logo ── */}
         <Link to="/" className="navbar-brand" onClick={closeMenu}>
-          <img src={logo} alt="City Trans Fes" width="60" height="60" />
+          <img src={logo} alt="Issal Fes" width="60" />
         </Link>
 
         {/* ── Hamburger mobile ── */}
