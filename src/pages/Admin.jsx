@@ -70,7 +70,6 @@ export default function Admin() {
       return JSON.parse(text);
     } catch (error) {
       console.error("Erreur API:", error);
-      return method === "GET" ? [] : {};
     }
   };
 
@@ -134,7 +133,7 @@ export default function Admin() {
             Dashboard Admin
           </h1>
           <p className="contact-hero-subtitle reveal-up" style={{ animationDelay: "0.2s" }}>
-            Gérez les lignes, actualités et alertes de City Trans Fes.
+            Gérez les lignes, actualités et alertes de Issal Fes.
             <br />
             Ajoutez, modifiez ou supprimez en toute simplicité.
           </p>

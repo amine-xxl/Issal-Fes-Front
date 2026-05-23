@@ -303,7 +303,7 @@ export default function AjoutNews() {
                       Retour au Dashboard
                     </button>
                     {!isEditMode && (
-                      <button className="btn-ctf-secondary" onClick={() => {
+                      <button className="btn-ctf-ghost" onClick={() => {
                         setStatus("idle");
                         // Reset forms
                         setTitre(""); setContenu(""); setImageFile(null); setImagePreview("");

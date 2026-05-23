@@ -16,72 +16,150 @@ import {
 } from "react-bootstrap-icons";
 import "../index.css";
 
-/* ── Hook personnalisé : déclenche une classe quand l'élément entre dans le viewport ── */
-function useScrollReveal(threshold = 0.15) {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
+// ── Données des statistiques (section 2) ──
+const STATS = [
+  { icon: <BusFrontFill />, number: "120+", label: "Autobus Actifs" },
+  { icon: <GeoAltFill />, number: "65", label: "Lignes Couvertes" },
+  { icon: <PeopleFill />, number: "50K+", label: "Passagers / Jour" },
+  { icon: <ClockFill />, number: "18H", label: "Service Quotidien" },
+];
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [threshold]);
+// ── Données des étiquettes de la flotte (section 3) ──
+const TAGS = [
+  [<ThermometerSnow />, "Climatisé"],
+  [<PersonWheelchair />, "PMR Accessible"],
+  [<Wifi />, "WiFi à Bord"],
+  [<Leaf />, "Éco-Friendly"],
+];
 
-  return [ref, visible];
-}
+// ── Données des notes par étoile (section 4) ──
+const RATING_BARS = [
+  { star: 5, pct: 68 },
+  { star: 4, pct: 22 },
+  { star: 3, pct: 7 },
+  { star: 2, pct: 2 },
+  { star: 1, pct: 1 },
+];
+
+// ── Données des avis clients (section 4) ──
+const REVIEWS = [
+  {
+    name: "Mehdi S.",
+    stars: 5,
+    text: "Service impeccable, bus toujours à l'heure. Je recommande vivement !",
+  },
+  {
+    name: "Abderahmane F.",
+    stars: 4.5,
+    text: "Très bon confort, chauffeurs courtois. Légère amélioration souhaitée aux heures de pointe.",
+  },
+  {
+    name: "Mohammed Sa.",
+    stars: 4.5,
+    text: "Le WiFi à bord est un vrai plus. Fès méritait ce niveau de transport !",
+  },
+];
+
+// ── Données des cartes de fonctionnalités (section 5) ──
+const FEATURES = [
+  {
+    icon: <ShieldFillCheck size={26} />,
+    title: "Sécurité Garantie",
+    desc: "Véhicules inspectés régulièrement, chauffeurs formés aux normes les plus strictes.",
+  },
+  {
+    icon: <ClockFill size={26} />,
+    title: "Ponctualité",
+    desc: "Réseau optimisé, horaires respectés et suivi en temps réel de chaque ligne.",
+  },
+  {
+    icon: <GeoAltFill size={26} />,
+    title: "Couverture Totale",
+    desc: "Du centre-ville aux quartiers périphériques, toute Fès est connectée.",
+  },
+  {
+    icon: <StarFill size={26} />,
+    title: "Confort Moderne",
+    desc: "Bus climatisés, accessibles PMR, avec WiFi à bord sur les lignes principales.",
+  },
+];
 
 export default function Home() {
-
-  /* État hover pour les cartes de fonctionnalités */
+  // Carte survolée dans la section features (pour l'effet hover)
   const [hoveredCard, setHoveredCard] = useState(null);
 
-  /* Refs pour les animations au scroll de chaque section */
-  const [statsRef,    statsVisible]    = useScrollReveal();
-  const [aboutRef,    aboutVisible]    = useScrollReveal();
-  const [videoRef,    videoVisible]    = useScrollReveal();
-  const [featuresRef, featuresVisible] = useScrollReveal();
-  const [ctaRef,      ctaVisible]      = useScrollReveal(0.1);
+  // Refs des sections à animer au scroll
+  const statsRef = useRef(null);
+  const aboutRef = useRef(null);
+  const videoRef = useRef(null);
+  const featuresRef = useRef(null);
+  const ctaRef = useRef(null);
+
+  // État de visibilité de chaque section
+  const [statsVisible, setStatsVisible] = useState(false);
+  const [aboutVisible, setAboutVisible] = useState(false);
+  const [videoVisible, setVideoVisible] = useState(false);
+  const [featuresVisible, setFeaturesVisible] = useState(false);
+  const [ctaVisible, setCtaVisible] = useState(false);
+
+  // Un seul IntersectionObserver qui gère toutes les sections
+  useEffect(() => {
+    const sections = [
+      { ref: statsRef, set: setStatsVisible },
+      { ref: aboutRef, set: setAboutVisible },
+      { ref: videoRef, set: setVideoVisible },
+      { ref: featuresRef, set: setFeaturesVisible },
+      { ref: ctaRef, set: setCtaVisible },
+    ];
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // On trouve quelle section vient d'entrer dans l'écran
+            const found = sections.find((s) => s.ref.current === entry.target);
+            if (found) found.set(true);
+          }
+        });
+      },
+      { threshold: 0.15 },
+    );
+
+    // On attache l'observer à chaque section
+    sections.forEach((s) => {
+      if (s.ref.current) observer.observe(s.ref.current);
+    });
+
+    return () => observer.disconnect(); // Nettoyage à la désactivation du composant
+  }, []);
 
   return (
     <div>
-
-      {/* ====================================================
-          SECTION 1 — HÉRO
-          Animation d'entrée : les éléments glissent depuis le bas
-      ==================================================== */}
+      {/* ── SECTION 1 : HÉRO ── */}
       <section className="home-hero d-flex align-items-center position-relative">
-
-        {/* Voile blanc semi-transparent — laisse visible l'arabesque derrière */}
+        {/* Voile semi-transparent par-dessus l'arabesque */}
         <div className="home-hero-overlay" />
 
         <div className="container position-relative" style={{ zIndex: 1 }}>
           <div className="row align-items-center g-5">
-
-            {/* ── Colonne gauche : titre + boutons ── */}
+            {/* Texte gauche — animation CSS définie dans index.css */}
             <div className="col-lg-5 hero-text-enter">
-
-              {/* Badge de catégorie */}
               <span className="home-badge mb-3 d-inline-block">
                 <BusFrontFill className="me-2" /> Transport Urbain - ISSAL FES
               </span>
 
-              {/* Titre principal */}
               <h1 className="home-title mb-3">
-                Voyagez <span className="text-primary">Mieux</span>,<br />
+                Savoir <span className="text-primary">Mieux</span>,<br />
                 Se Déplacer <span className="text-primary">Mieux</span>.<br />
-                Connectez‑vous<br />à Fès.
+                Connectez‑vous
+                <br />à Issal Fes.
               </h1>
 
-              {/* Description courte */}
               <p className="text-secondary fs-6 lh-lg mb-4">
-                City Trans Fes modernise le transport public — BUS — pour une mobilité fluide, sûre
-                et accessible à tous les habitants de Fès.
+                Issal Fes modernise le transport public — BUS — pour une
+                mobilité fluide, sûre et accessible à tous les habitants de Fès.
               </p>
 
-              {/* Boutons d'action */}
               <div className="d-flex flex-wrap gap-3">
                 <Link to="/Tickets" className="btn-ctf-primary">
                   Acheter un Ticket <ArrowRightCircleFill />
@@ -92,124 +170,96 @@ export default function Home() {
               </div>
             </div>
 
-            {/* ── Colonne droite : photo du bus + badges flottants ── */}
+            {/* Image droite avec badges flottants */}
             <div className="col-lg-7 hero-image-enter">
               <div className="position-relative">
-
-                {/* Photo principale du bus */}
                 <img
                   src="busfes2.webp"
-                  alt="Bus City Trans Fes"
+                  alt="Bus Issal Fes"
                   className="w-100 rounded-4 d-block home-bus-img"
                 />
 
-                {/* Badge "En Service" en haut à droite */}
+                {/* Badge vert "En Service" */}
                 <div className="home-live-badge">
                   <span className="home-green-dot" />
                   En Service
                 </div>
 
-                {/* Pilule de départ en bas à gauche */}
+                {/* Pilule de départ en bas */}
                 <div className="home-departure-pill">
                   <div className="home-departure-icon">
                     <BusFrontFill />
                   </div>
                   <div>
-                    <div className="fw-bold" style={{ fontSize: 13 }}>Ligne - 15 · Centre Ville</div>
-                    <div className="text-secondary" style={{ fontSize: 11, marginTop: 2 }}>
+                    <div className="fw-bold" style={{ fontSize: 13 }}>
+                      Ligne - 15 · Centre Ville
+                    </div>
+                    <div
+                      className="text-secondary"
+                      style={{ fontSize: 11, marginTop: 2 }}
+                    >
                       Prochain départ : <b className="text-primary">3 min</b>
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
-
           </div>
         </div>
       </section>
 
-
-      {/* ====================================================
-          SECTION 2 — BANDE DE STATISTIQUES
-          Révélation au scroll avec comptage animé
-      ==================================================== */}
+      {/* ── SECTION 2 : STATISTIQUES ── */}
       <section
         ref={statsRef}
         className={`home-stats py-5 scroll-reveal ${statsVisible ? "revealed" : ""}`}
       >
         <div className="container">
           <div className="row g-3 text-center text-white">
-
-            {/* Stat : Autobus actifs */}
-            <div className="col-6 col-md-3 stat-item" style={{ "--si": 1 }}>
-              <div className="fs-3 mb-2"><BusFrontFill /></div>
-              <div className="home-stat-number">120+</div>
-              <div className="home-stat-label">Autobus Actifs</div>
-            </div>
-
-            {/* Stat : Lignes couvertes */}
-            <div className="col-6 col-md-3 stat-item" style={{ "--si": 2 }}>
-              <div className="fs-3 mb-2"><GeoAltFill /></div>
-              <div className="home-stat-number">65</div>
-              <div className="home-stat-label">Lignes Couvertes</div>
-            </div>
-
-            {/* Stat : Passagers par jour */}
-            <div className="col-6 col-md-3 stat-item" style={{ "--si": 3 }}>
-              <div className="fs-3 mb-2"><PeopleFill /></div>
-              <div className="home-stat-number">50K+</div>
-              <div className="home-stat-label">Passagers / Jour</div>
-            </div>
-
-            {/* Stat : Heures de service */}
-            <div className="col-6 col-md-3 stat-item" style={{ "--si": 4 }}>
-              <div className="fs-3 mb-2"><ClockFill /></div>
-              <div className="home-stat-number">18H</div>
-              <div className="home-stat-label">Service Quotidien</div>
-            </div>
-
+            {/* Génération des 4 stats depuis le tableau STATS */}
+            {STATS.map((stat, i) => (
+              <div
+                key={i}
+                className="col-6 col-md-3 stat-item"
+                style={{ "--si": i + 1 }}
+              >
+                <div className="fs-3 mb-2">{stat.icon}</div>
+                <div className="home-stat-number">{stat.number}</div>
+                <div className="home-stat-label">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-
-      {/* ====================================================
-          SECTION 3 — À PROPOS DE LA FLOTTE
-          Révélation au scroll : texte depuis gauche, image depuis droite
-      ==================================================== */}
+      {/* ── SECTION 3 : LA FLOTTE ── */}
       <section
         ref={aboutRef}
         className={`home-section py-5 scroll-reveal ${aboutVisible ? "revealed" : ""}`}
       >
         <div className="container py-4">
           <div className="row align-items-center g-5">
-
-            {/* ── Colonne gauche : texte descriptif ── */}
+            {/* Texte gauche */}
             <div className="col-lg-5 reveal-left">
               <span className="home-section-label">Notre Flotte</span>
               <h2 className="home-section-title mt-2 mb-3">
-                Des Bus Modernes<br />pour Fès
+                Des Bus Modernes
+                <br />
+                pour Fès
               </h2>
               <p className="text-secondary lh-lg mb-3">
-                City Trans Fes opère une flotte de <strong>120+ autobus</strong> de
+                Issal Fes opère une flotte de <strong>120+ autobus</strong> de
                 dernière génération. Chaque véhicule est régulièrement inspecté
-                pour garantir le confort et la sécurité de tous les passagers.
+                pour garantir le confort et la sécurité.
               </p>
               <p className="text-secondary lh-lg mb-4">
-                Nos bus desservent <strong>35 lignes</strong>, de la médina historique
-                aux nouveaux quartiers, avec des passages toutes les{" "}
+                Nos bus desservent <strong>35 lignes</strong>, de la médina
+                historique aux nouveaux quartiers, avec des passages toutes les{" "}
                 <strong>8 minutes</strong> aux heures de pointe.
               </p>
 
-              {/* Étiquettes de fonctionnalités */}
+              {/* Étiquettes depuis le tableau TAGS */}
               <div className="d-flex flex-wrap gap-2">
-                {[
-                  [<ThermometerSnow />, "Climatisé"],
-                  [<PersonWheelchair />, "PMR Accessible"],
-                  [<Wifi />, "WiFi à Bord"],
-                  [<Leaf />, "Éco-Friendly"],
-                ].map(([icon, label], i) => (
+                {TAGS.map(([icon, label], i) => (
                   <span key={i} className="home-tag">
                     {icon} {label}
                   </span>
@@ -217,64 +267,62 @@ export default function Home() {
               </div>
             </div>
 
-            {/* ── Colonne droite : photo + cartes flottantes ── */}
+            {/* Image droite avec cartes flottantes */}
             <div className="col-lg-7 reveal-right">
               <div className="position-relative">
-
-                {/* Photo secondaire du bus */}
                 <img
                   src="busfes1.webp"
-                  alt="Bus City Trans Fes vue de côté"
+                  alt="Bus Issal Fes vue de côté"
                   className="w-100 rounded-4 d-block home-bus-img"
                 />
 
-                {/* Carte flottante : nombre de bus */}
+                {/* Carte flottante blanche : nombre de bus */}
                 <div className="home-float-card-white">
-                  <div className="text-primary fs-5 mb-1"><BusFrontFill /></div>
+                  <div className="text-primary fs-5 mb-1">
+                    <BusFrontFill />
+                  </div>
                   <div className="home-float-number text-primary">120+</div>
                   <div className="home-float-label">Autobus en flotte</div>
                 </div>
 
-                {/* Carte flottante : note de satisfaction */}
+                {/* Carte flottante bleue : note de satisfaction */}
                 <div className="home-float-card-blue">
                   <div className="text-warning fs-5 mb-1">
-                    <StarFill /><StarFill /><StarFill /><StarFill /><StarHalf />
+                    <StarFill />
+                    <StarFill />
+                    <StarFill />
+                    <StarFill />
+                    <StarHalf />
                   </div>
                   <div className="home-float-number">4.7/5</div>
-                  <div className="home-float-label">Satisfaction des clients</div>
+                  <div className="home-float-label">
+                    Satisfaction des clients
+                  </div>
                 </div>
-
               </div>
             </div>
-
           </div>
         </div>
       </section>
 
-
-      {/* ====================================================
-          SECTION 4 — VIDÉO + PANNEAU D'AVIS
-          Révélation au scroll : montée depuis le bas
-      ==================================================== */}
+      {/* ── SECTION 4 : VIDÉO + AVIS ── */}
       <section
         ref={videoRef}
         className={`home-section py-5 scroll-reveal ${videoVisible ? "revealed" : ""}`}
       >
         <div className="container pb-4">
           <div className="row align-items-stretch g-4">
-
-            {/* ── Colonne gauche : lecteur vidéo ── */}
+            {/* Vidéo gauche — autoPlay, muette, en boucle */}
             <div className="col-lg-7 reveal-left">
               <div className="home-video-wrapper position-relative rounded-4 overflow-hidden">
-
-                {/* Vidéo en lecture automatique, muette et en boucle */}
                 <video
                   src="yutongvid.mp4"
-                  autoPlay muted loop playsInline
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
                   className="w-100 h-100 object-fit-cover d-block"
                 />
-
-                {/* Étiquette "En direct" */}
                 <div className="home-video-label">
                   <span className="home-red-dot" />
                   Nos City Bus
@@ -282,159 +330,169 @@ export default function Home() {
               </div>
             </div>
 
-            {/* ── Colonne droite : panneau de notation ── */}
+            {/* Panneau de notes droite */}
             <div className="col-lg-5 d-flex flex-column reveal-right">
               <div className="home-rating-panel flex-fill p-4 rounded-4">
-
-                {/* Score global */}
+                {/* Score global + barres */}
                 <div className="d-flex align-items-center gap-4 pb-3 mb-3 border-bottom">
-
-                  {/* Grand chiffre de note */}
                   <div className="text-center" style={{ minWidth: 80 }}>
                     <div className="home-big-score text-primary">4.7</div>
                     <div className="text-warning" style={{ fontSize: 14 }}>
-                      <StarFill /><StarFill /><StarFill /><StarFill /><StarHalf />
+                      <StarFill />
+                      <StarFill />
+                      <StarFill />
+                      <StarFill />
+                      <StarHalf />
                     </div>
-                    <div className="text-secondary" style={{ fontSize: 10, marginTop: 4 }}>sur 5 · 1 240 avis</div>
+                    <div
+                      className="text-secondary"
+                      style={{ fontSize: 10, marginTop: 4 }}
+                    >
+                      sur 5 · 1 240 avis
+                    </div>
                   </div>
 
-                  {/* Barres par étoile */}
+                  {/* Barres de progression par étoile */}
                   <div className="flex-fill">
-                    {[
-                      { star: 5, pct: 68 },
-                      { star: 4, pct: 22 },
-                      { star: 3, pct: 7  },
-                      { star: 2, pct: 2  },
-                      { star: 1, pct: 1  },
-                    ].map(({ star, pct }) => (
-                      <div key={star} className="d-flex align-items-center gap-2 mb-1">
-                        <span className="text-secondary" style={{ fontSize: 10, width: 6 }}>{star}</span>
+                    {RATING_BARS.map(({ star, pct }) => (
+                      <div
+                        key={star}
+                        className="d-flex align-items-center gap-2 mb-1"
+                      >
+                        <span
+                          className="text-secondary"
+                          style={{ fontSize: 10, width: 6 }}
+                        >
+                          {star}
+                        </span>
                         <StarFill size={9} className="text-warning" />
-                        <div className="flex-fill rounded-pill bg-light overflow-hidden" style={{ height: 6 }}>
-                          <div className="rounded-pill bg-warning" style={{ height: "100%", width: `${pct}%` }} />
+                        <div
+                          className="flex-fill rounded-pill bg-light overflow-hidden"
+                          style={{ height: 6 }}
+                        >
+                          <div
+                            className="rounded-pill bg-warning"
+                            style={{ height: "100%", width: `${pct}%` }}
+                          />
                         </div>
-                        <span className="text-secondary" style={{ fontSize: 10, width: 24, textAlign: "right" }}>{pct}%</span>
+                        <span
+                          className="text-secondary"
+                          style={{
+                            fontSize: 10,
+                            width: 24,
+                            textAlign: "right",
+                          }}
+                        >
+                          {pct}%
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Titre des avis récents */}
-                <h6 className="fw-bold text-uppercase mb-3" style={{ fontSize: 12, letterSpacing: 1.5 }}>
+                <h6
+                  className="fw-bold text-uppercase mb-3"
+                  style={{ fontSize: 12, letterSpacing: 1.5 }}
+                >
                   Avis Récents
                 </h6>
 
-                {/* Avis 1 */}
-                <div className="home-review-card mb-2">
-                  <div className="d-flex justify-content-between align-items-center mb-1">
-                    <span className="fw-bold" style={{ fontSize: 13, color: "#1e3a5f" }}>Mehdi S.</span>
-                    <span className="text-warning" style={{ fontSize: 12 }}><StarFill /><StarFill /><StarFill /><StarFill /><StarFill /></span>
+                {/* Avis clients depuis le tableau REVIEWS */}
+                {REVIEWS.map((review, i) => (
+                  <div
+                    key={i}
+                    className={`home-review-card ${i < REVIEWS.length - 1 ? "mb-2" : ""}`}
+                  >
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                      <span
+                        className="fw-bold"
+                        style={{ fontSize: 13, color: "#1e3a5f" }}
+                      >
+                        {review.name}
+                      </span>
+                      {/* Affichage des étoiles pleines + demie si besoin */}
+                      <span className="text-warning" style={{ fontSize: 12 }}>
+                        {[...Array(Math.floor(review.stars))].map((_, j) => (
+                          <StarFill key={j} />
+                        ))}
+                        {review.stars % 1 !== 0 && <StarHalf />}
+                      </span>
+                    </div>
+                    <p
+                      className="mb-0 text-secondary"
+                      style={{ fontSize: 12, lineHeight: 1.6 }}
+                    >
+                      {review.text}
+                    </p>
                   </div>
-                  <p className="mb-0 text-secondary" style={{ fontSize: 12, lineHeight: 1.6 }}>
-                    Service impeccable, bus toujours à l'heure. Je recommande vivement !
-                  </p>
-                </div>
-
-                {/* Avis 2 */}
-                <div className="home-review-card mb-2">
-                  <div className="d-flex justify-content-between align-items-center mb-1">
-                    <span className="fw-bold" style={{ fontSize: 13, color: "#1e3a5f" }}>Abderahmane F.</span>
-                    <span className="text-warning" style={{ fontSize: 12 }}><StarFill /><StarFill /><StarFill /><StarHalf /></span>
-                  </div>
-                  <p className="mb-0 text-secondary" style={{ fontSize: 12, lineHeight: 1.6 }}>
-                    Très bon confort, chauffeurs courtois. Légère amélioration souhaitée aux heures de pointe.
-                  </p>
-                </div>
-
-                {/* Avis 3 */}
-                <div className="home-review-card">
-                  <div className="d-flex justify-content-between align-items-center mb-1">
-                    <span className="fw-bold" style={{ fontSize: 13, color: "#1e3a5f" }}>Mohammed Sa.</span>
-                    <span className="text-warning" style={{ fontSize: 12 }}><StarFill /><StarFill /><StarFill /><StarFill /><StarHalf /></span>
-                  </div>
-                  <p className="mb-0 text-secondary" style={{ fontSize: 12, lineHeight: 1.6 }}>
-                    Le WiFi à bord est un vrai plus. Fès méritait ce niveau de transport !
-                  </p>
-                </div>
-
+                ))}
               </div>
             </div>
-
           </div>
         </div>
       </section>
 
-
-      {/* ====================================================
-          SECTION 5 — GRILLE DE FONCTIONNALITÉS
-          Les cartes apparaissent en décalé au scroll
-      ==================================================== */}
+      {/* ── SECTION 5 : FONCTIONNALITÉS ── */}
       <section
         ref={featuresRef}
         className={`home-section py-5 scroll-reveal ${featuresVisible ? "revealed" : ""}`}
       >
         <div className="container py-3">
-
-          {/* En-tête de section */}
           <div className="text-center mb-5 reveal-up">
             <span className="home-section-label">Pourquoi Nous Choisir</span>
             <h2 className="home-section-title mt-2">Un Service d'Excellence</h2>
           </div>
 
           <div className="row g-4">
-            {[
-              { icon: <ShieldFillCheck size={26} />, title: "Sécurité Garantie",  desc: "Véhicules inspectés régulièrement, chauffeurs formés aux normes les plus strictes." },
-              { icon: <ClockFill size={26} />,        title: "Ponctualité",        desc: "Réseau optimisé, horaires respectés et suivi en temps réel de chaque ligne." },
-              { icon: <GeoAltFill size={26} />,       title: "Couverture Totale",  desc: "Du centre-ville aux quartiers périphériques, toute Fès est connectée." },
-              { icon: <StarFill size={26} />,         title: "Confort Moderne",    desc: "Bus climatisés, accessibles PMR, avec WiFi à bord sur les lignes principales." },
-            ].map((card, i) => (
-              /* Chaque carte entre avec un délai décalé */
-              <div key={i} className="col-sm-6 col-lg-3 feature-card-stagger" style={{ "--fi": i }}>
+            {/* Cartes générées depuis le tableau FEATURES avec délai décalé via --fi */}
+            {FEATURES.map((card, i) => (
+              <div
+                key={i}
+                className="col-sm-6 col-lg-3 feature-card-stagger"
+                style={{ "--fi": i }}
+              >
                 <div
                   className={`home-feature-card h-100 ${hoveredCard === i ? "home-feature-card--hovered" : ""}`}
                   onMouseEnter={() => setHoveredCard(i)}
                   onMouseLeave={() => setHoveredCard(null)}
                 >
                   <div className="text-primary fs-3 mb-3">{card.icon}</div>
-                  <h4 className="fw-bold mb-2" style={{ fontSize: "0.98rem" }}>{card.title}</h4>
-                  <p className="text-secondary mb-0" style={{ fontSize: "0.86rem", lineHeight: 1.7 }}>{card.desc}</p>
+                  <h4 className="fw-bold mb-2" style={{ fontSize: "0.98rem" }}>
+                    {card.title}
+                  </h4>
+                  <p
+                    className="text-secondary mb-0"
+                    style={{ fontSize: "0.86rem", lineHeight: 1.7 }}
+                  >
+                    {card.desc}
+                  </p>
                 </div>
               </div>
             ))}
           </div>
-
         </div>
       </section>
 
-
-      {/* ====================================================
-          SECTION 6 — BANNIÈRE CTA ZELLIGE
-          Révélation au scroll avec zoom léger sur l'image de fond
-      ==================================================== */}
+      {/* ── SECTION 6 : CTA ZELLIGE ── */}
       <section
         ref={ctaRef}
         className={`home-cta position-relative text-center overflow-hidden scroll-reveal ${ctaVisible ? "revealed" : ""}`}
       >
-
-        {/* Image de fond zellige */}
+        {/* Image de fond zellige marocain */}
         <img src="zellige.jpg" alt="" className="home-cta-bg" />
 
-        {/* Voile sombre sur l'image */}
+        {/* Voile sombre par-dessus l'image */}
         <div className="home-cta-overlay" />
 
-        {/* Décorations : arches mauresques haut et bas */}
+        {/* Décorations mauresques (arches + diamants aux coins) */}
         <div className="home-arch home-arch--top" />
         <div className="home-arch home-arch--bottom" />
-
-        {/* Décorations : diamants aux coins */}
         <div className="home-diamond home-diamond--tl" />
         <div className="home-diamond home-diamond--tr" />
         <div className="home-diamond home-diamond--bl" />
         <div className="home-diamond home-diamond--br" />
 
-        {/* Contenu textuel */}
         <div className="container position-relative py-5" style={{ zIndex: 3 }}>
-
           <div className="home-cta-stars mb-3">✦ ✦ ✦</div>
 
           <span className="home-cta-subtitle d-inline-block mb-3">
@@ -442,13 +500,16 @@ export default function Home() {
           </span>
 
           <h2 className="home-cta-title mb-3">
-            Prêt à Voyager<br />
+            Prêt à Prendre Le Bus
+            <br />
             <em className="home-cta-em">à travers Fès ?</em>
           </h2>
 
           <p className="home-cta-desc mx-auto mb-4">
-            <h3>De la médina antique aux boulevards modernes, Issal Fes
-            vous transporte avec élégance et fiabilité.</h3>
+            <h3>
+              De la médina antique aux boulevards modernes, Issal Fes vous
+              transporte avec élégance et fiabilité.
+            </h3>
           </p>
 
           {/* Séparateur doré */}
@@ -458,7 +519,6 @@ export default function Home() {
             <div className="home-divider-line" />
           </div>
 
-          {/* Boutons d'action */}
           <div className="d-flex justify-content-center flex-wrap gap-3">
             <Link to="/Tickets" className="btn-cta-gold">
               Acheter un Ticket <ArrowRightCircleFill />
@@ -469,10 +529,8 @@ export default function Home() {
           </div>
 
           <div className="home-cta-dots mt-4">◆ ◇ ◆</div>
-
         </div>
       </section>
-
     </div>
   );
 }

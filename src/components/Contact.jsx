@@ -13,25 +13,8 @@ import {
 } from "react-bootstrap-icons";
 import "../index.css";
 
-/* ── Hook de révélation au scroll (réutilisé depuis Home) ── */
-function useScrollReveal(threshold = 0.15) {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
-      },
-      { threshold },
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [threshold]);
-  return [ref, visible];
-}
-
-/* ── Sujets disponibles pour le problème signalé ── */
-const SUBJECTS = [
+// Liste des sujets disponibles dans le menu déroulant
+const SUJETS = [
   "Retard d'un bus",
   "Problème de ticket",
   "Comportement du conducteur",
@@ -42,7 +25,7 @@ const SUBJECTS = [
 ];
 
 export default function Contact() {
-  /* ── État du formulaire ── */
+  // État du formulaire — tous les champs dans un seul objet
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -51,70 +34,103 @@ export default function Contact() {
     subscribe: false,
   });
 
-  /* ── État de soumission : null | "loading" | "success" | "error" ── */
+  // Statut de la soumission : null = formulaire vide, "loading", "success", "error"
   const [status, setStatus] = useState(null);
 
-  /* ── Erreurs de validation par champ ── */
+  // Erreurs de validation renvoyées par Laravel (ex: champ vide, email invalide)
   const [errors, setErrors] = useState({});
 
-  /* ── Refs pour les animations au scroll ── */
-  const [heroRef, heroVisible] = useScrollReveal(0.1);
-  const [formRef, formVisible] = useScrollReveal(0.1);
-  const [infoRef, infoVisible] = useScrollReveal(0.1);
+  // Refs pour les animations scroll reveal
+  const heroRef = useRef(null);
+  const formRef = useRef(null);
+  const infoRef = useRef(null);
 
-  /* ── Ref pour le timeout de soumission ── */
-  const timeoutRef = useRef(null);
+  const [heroVisible, setHeroVisible] = useState(false);
+  const [formVisible, setFormVisible] = useState(false);
+  const [infoVisible, setInfoVisible] = useState(false);
 
-  /* ── Nettoie le timeout au démontage ── */
+  // Observer qui déclenche l'animation quand une section entre dans l'écran
   useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
+    const sections = [
+      { ref: heroRef, set: setHeroVisible },
+      { ref: formRef, set: setFormVisible },
+      { ref: infoRef, set: setInfoVisible },
+    ];
+
+    const observer = new IntersectionObserver( // API native pour détecter quand un élément entre dans le viewport (pas besoin de librairie externe)
+      (entries) => { // entries contient les éléments observés qui ont changé de visibilité
+        entries.forEach((entry) => { // Pour chaque élément qui a changé de visibilité
+          if (entry.isIntersecting) { // Si la section est visible à l'écran
+            // On cherche quelle section vient d'apparaître et on la marque visible
+            const found = sections.find((s) => s.ref.current === entry.target);
+            if (found) found.set(true);
+          }
+        });
+      },
+      { threshold: 0.1 }, // Une petite partie de la section doit être visible pour déclencher l'animation
+    );
+
+    // On attache l'observer à chaque section
+    sections.forEach((s) => {
+      if (s.ref.current) observer.observe(s.ref.current);
+    });
+
+    // Nettoyage quand le composant se démonte
+    return () => observer.disconnect();
   }, []);
 
-  /* ── Met à jour un champ du formulaire ── */
+  // Mise à jour d'un champ quand l'utilisateur tape
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
+
+    setForm({
+      ...form,
+      // Si c'est une checkbox on prend checked, sinon la valeur texte
       [name]: type === "checkbox" ? checked : value,
-    }));
-    /* Efface l'erreur du champ modifié */
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: null }));
+    });
+
+    // On efface l'erreur du champ dès que l'utilisateur commence à corriger
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: null });
+    }
   }
 
-  /* ── Envoi du formulaire avec gestion des erreurs Laravel ── */
+  // Envoi du formulaire à l'API Laravel
   function handleSubmit(e) {
-    e.preventDefault();
+    e.preventDefault(); // Empêche le rechargement de la page
     setStatus("loading");
     setErrors({});
 
     fetch("http://127.0.0.1:8000/api/contact", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
+        "Content-Type": "application/json", // On envoie du JSON
+        Accept: "application/json", // Laravel renvoie du JSON et non du HTML
       },
       body: JSON.stringify(form),
     })
       .then(async (res) => {
         const data = await res.json().catch(() => null);
+
         if (res.ok) {
+          // Succès : le message a été enregistré
           setStatus("success");
-          setErrors({});
-        } else if (res.status === 422 && data && data.errors) {
+        } else if (res.status === 422 && data?.errors) {
+          // Erreur de validation Laravel (champs manquants ou invalides)
           setErrors(data.errors);
           setStatus("error");
         } else {
+          // Autre erreur serveur
           setStatus("error");
         }
       })
       .catch(() => {
+        // Erreur réseau (serveur éteint, pas de connexion...)
         setStatus("error");
       });
   }
 
-  /* ── Réinitialise le formulaire après succès ── */
+  // Réinitialise tout pour permettre un nouvel envoi
   function handleReset() {
     setForm({
       name: "",
@@ -129,26 +145,22 @@ export default function Contact() {
 
   return (
     <div className="contact-page">
-      {/* ====================================================
-          EN-TÊTE HÉRO — Animation d'entrée de page
-      ==================================================== */}
+      {/* ── HERO ── */}
       <section
         ref={heroRef}
         className={`contact-hero d-flex align-items-center justify-content-center position-relative scroll-reveal ${heroVisible ? "revealed" : ""}`}
       >
-        {/* Voile semi-transparent pour lisibilité */}
+        {/* Voile semi-transparent par-dessus l'arabesque */}
         <div className="contact-hero-overlay" />
 
         <div
           className="container position-relative text-center"
           style={{ zIndex: 1 }}
         >
-          {/* Icône décorative animée */}
           <div className="contact-hero-icon reveal-up">
             <BusFrontFill size={32} />
           </div>
 
-          {/* Titre principal */}
           <h1
             className="contact-hero-title reveal-up"
             style={{ animationDelay: "0.1s" }}
@@ -156,7 +168,6 @@ export default function Contact() {
             Contactez-nous
           </h1>
 
-          {/* Sous-titre */}
           <p
             className="contact-hero-subtitle reveal-up"
             style={{ animationDelay: "0.2s" }}
@@ -178,19 +189,17 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* ====================================================
-          CORPS PRINCIPAL — Formulaire + Infos de contact
-      ==================================================== */}
+      {/* ── BODY : Formulaire + Infos ── */}
       <section className="contact-body py-5">
         <div className="container py-3">
           <div className="row g-5 align-items-start">
             {/* ── COLONNE GAUCHE : Formulaire ── */}
             <div
               ref={formRef}
-              className={`col-lg-7 scroll-reveal ${formVisible ? "revealed" : ""}`}
+              className={`col-lg-7 scroll-reveal ${formVisible ? "revealed" : ""}`} // On ajoute la classe "revealed" pour déclencher l'animation CSS quand la section devient visible
             >
               <div className="contact-form-card reveal-left">
-                {/* ── État : Succès ── */}
+                {/* Affichage si le message a été envoyé avec succès */}
                 {status === "success" && (
                   <div className="contact-success-state text-center py-4">
                     <div className="contact-success-icon mb-3">
@@ -203,10 +212,11 @@ export default function Contact() {
                       Merci <strong>{form.name || "vous"}</strong>, votre
                       message a bien été reçu.
                     </p>
+                    {/* Message supplémentaire si l'utilisateur s'est abonné */}
                     {form.subscribe && (
                       <p className="contact-subscribe-confirm mb-4">
                         <BellFill className="me-2" />
-                        Vous êtes abonné(e) aux actualités City Trans Fes.
+                        Vous êtes abonné(e) aux actualités Issal Fes.
                       </p>
                     )}
                     <button className="btn-ctf-primary" onClick={handleReset}>
@@ -215,7 +225,7 @@ export default function Contact() {
                   </div>
                 )}
 
-                {/* ── État : Erreur serveur ── */}
+                {/* Affichage en cas d'erreur serveur */}
                 {status === "error" && (
                   <div className="contact-error-state text-center py-4">
                     <div className="mb-3">
@@ -241,10 +251,9 @@ export default function Contact() {
                   </div>
                 )}
 
-                {/* ── Formulaire principal (visible si pas success/error) ── */}
+                {/* Formulaire principal — visible uniquement si pas de succès/erreur */}
                 {(status === null || status === "loading") && (
                   <form onSubmit={handleSubmit}>
-                    {/* En-tête du formulaire */}
                     <div className="mb-4">
                       <span className="home-section-label">
                         Formulaire de contact
@@ -252,14 +261,13 @@ export default function Contact() {
                       <h2 className="contact-form-title mt-1">Écrivez-nous</h2>
                     </div>
 
-                    {/* Champ : Nom complet */}
+                    {/* Champ Nom */}
                     <div className="contact-field-group mb-3">
-                      <label htmlFor="contact-name" className="contact-label">
+                      <label className="contact-label">
                         <PersonFill className="me-2 text-primary" />
                         Nom complet
                       </label>
                       <input
-                        id="contact-name"
                         type="text"
                         name="name"
                         value={form.name}
@@ -267,24 +275,17 @@ export default function Contact() {
                         placeholder="Ex : Mehdi Amine"
                         className={`contact-input ${errors.name ? "contact-input--error" : ""}`}
                         disabled={status === "loading"}
-                        aria-describedby={
-                          errors.name ? "contact-name-error" : undefined
-                        }
-                        aria-invalid={!!errors.name}
                       />
-                      {/* Message d'erreur du champ */}
+                      {/* Erreur Laravel pour ce champ */}
                       {errors.name && (
-                        <span
-                          id="contact-name-error"
-                          className="contact-error-msg"
-                        >
+                        <span className="contact-error-msg">
                           <ExclamationTriangleFill className="me-1" size={12} />
                           {errors.name}
                         </span>
                       )}
                     </div>
 
-                    {/* Champ : Adresse email */}
+                    {/* Champ Email */}
                     <div className="contact-field-group mb-3">
                       <label className="contact-label">
                         <EnvelopeFill className="me-2 text-primary" />
@@ -307,7 +308,7 @@ export default function Contact() {
                       )}
                     </div>
 
-                    {/* Champ : Sujet (liste déroulante) */}
+                    {/* Champ Sujet — liste déroulante */}
                     <div className="contact-field-group mb-3">
                       <label className="contact-label">
                         <ChatLeftTextFill className="me-2 text-primary" />
@@ -321,7 +322,8 @@ export default function Contact() {
                         disabled={status === "loading"}
                       >
                         <option value="">-- Choisissez un sujet --</option>
-                        {SUBJECTS.map((s) => (
+                        {/* On génère les options depuis le tableau SUJETS */}
+                        {SUJETS.map((s) => (
                           <option key={s} value={s}>
                             {s}
                           </option>
@@ -335,7 +337,7 @@ export default function Contact() {
                       )}
                     </div>
 
-                    {/* Champ : Message */}
+                    {/* Champ Message */}
                     <div className="contact-field-group mb-3">
                       <label className="contact-label">
                         <ChatLeftTextFill className="me-2 text-primary" />
@@ -358,7 +360,7 @@ export default function Contact() {
                       )}
                     </div>
 
-                    {/* Case à cocher : Abonnement aux actualités */}
+                    {/* Checkbox abonnement newsletter */}
                     <div className="contact-subscribe-row mb-4">
                       <label className="contact-subscribe-label">
                         <input
@@ -372,7 +374,7 @@ export default function Contact() {
                         <div className="contact-subscribe-text">
                           <span className="fw-semibold">
                             <BellFill className="me-2 text-primary" size={13} />
-                            S'abonner aux actualités City Trans Fes
+                            S'abonner aux actualités Issal Fes
                           </span>
                           <span className="contact-subscribe-desc">
                             Recevez les nouvelles lignes, horaires et offres
@@ -382,14 +384,13 @@ export default function Contact() {
                       </label>
                     </div>
 
-                    {/* Bouton d'envoi */}
+                    {/* Bouton d'envoi — désactivé pendant le chargement */}
                     <button
                       type="submit"
                       className="btn-ctf-primary w-100 justify-content-center contact-submit-btn"
                       disabled={status === "loading"}
                     >
                       {status === "loading" ? (
-                        /* Spinner pendant l'envoi simulé */
                         <>
                           <span className="contact-spinner" />
                           Envoi en cours...
@@ -411,7 +412,7 @@ export default function Contact() {
               className={`col-lg-5 scroll-reveal ${infoVisible ? "revealed" : ""}`}
             >
               <div className="contact-info-col reveal-right">
-                {/* Carte : Adresse */}
+                {/* Adresse */}
                 <div
                   className="contact-info-card contact-info-stagger"
                   style={{ "--ii": 1 }}
@@ -429,7 +430,7 @@ export default function Contact() {
                   </div>
                 </div>
 
-                {/* Carte : Téléphone */}
+                {/* Téléphone */}
                 <div
                   className="contact-info-card contact-info-stagger"
                   style={{ "--ii": 2 }}
@@ -443,7 +444,7 @@ export default function Contact() {
                   </div>
                 </div>
 
-                {/* Carte : Email */}
+                {/* Email */}
                 <div
                   className="contact-info-card contact-info-stagger"
                   style={{ "--ii": 3 }}
@@ -454,15 +455,15 @@ export default function Contact() {
                   <div>
                     <h6 className="contact-info-title">Email</h6>
                     <a
-                      href="mailto:contact@citytransfes.ma"
+                      href="mailto:contact@issalfes.ma"
                       className="contact-info-text footer-link mb-0 d-block"
                     >
-                      contact@citytransfes.ma
+                      contact@issalfes.ma
                     </a>
                   </div>
                 </div>
 
-                {/* Carte : Horaires */}
+                {/* Horaires */}
                 <div
                   className="contact-info-card contact-info-stagger"
                   style={{ "--ii": 4 }}
@@ -480,7 +481,7 @@ export default function Contact() {
                   </div>
                 </div>
 
-                {/* Encart abonnement newsletter */}
+                {/* Encart newsletter */}
                 <div
                   className="contact-newsletter-box contact-info-stagger"
                   style={{ "--ii": 5 }}

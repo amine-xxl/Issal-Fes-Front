@@ -16,60 +16,61 @@ import {
 } from "react-bootstrap-icons";
 import "../index.css";
 
-/* ── Hook scroll reveal ── */
-function useScrollReveal(threshold = 0.15) {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
-      },
-      { threshold },
-    );
-
-    if (ref.current) observer.observe(ref.current);
-
-    return () => observer.disconnect();
-  }, [threshold]);
-
-  return [ref, visible];
-}
-
 export default function About() {
   const [activePhoto, setActivePhoto] = useState(0);
 
-  const [heroRef, heroVisible] = useScrollReveal(0.1);
-  const [busRef, busVisible] = useScrollReveal(0.15);
-  const [specsRef, specsVisible] = useScrollReveal(0.15);
-  const [appRef, appVisible] = useScrollReveal(0.15);
-  const [teamRef, teamVisible] = useScrollReveal(0.15);
+  // Scroll reveal — ref + state pour chaque section
+  const heroRef = useRef(null);
+  const busRef = useRef(null);
+  const specsRef = useRef(null);
+  const appRef = useRef(null);
+  const teamRef = useRef(null);
+
+  const [heroVisible, setHeroVisible] = useState(false);
+  const [busVisible, setBusVisible] = useState(false);
+  const [specsVisible, setSpecsVisible] = useState(false);
+  const [appVisible, setAppVisible] = useState(false);
+  const [teamVisible, setTeamVisible] = useState(false);
+
+  // Observer pour animer les sections au scroll
+  useEffect(() => {
+    const sections = [
+      { ref: heroRef, set: setHeroVisible },
+      { ref: busRef, set: setBusVisible },
+      { ref: specsRef, set: setSpecsVisible },
+      { ref: appRef, set: setAppVisible },
+      { ref: teamRef, set: setTeamVisible },
+    ];
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const found = sections.find((s) => s.ref.current === entry.target);
+            if (found) found.set(true);
+          }
+        });
+      },
+      { threshold: 0.15 },
+    );
+
+    sections.forEach((s) => {
+      if (s.ref.current) observer.observe(s.ref.current);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   const photos = [
-    {
-      src: "sideview.avif",
-      caption: "Extérieur — vue latérale",
-    },
-    {
-      src: "avantpic.webp",
-      caption: "Extérieur — face avant",
-    },
-    {
-      src: "interrior.png",
-      caption: "Intérieur — espace passagers",
-    },
-    {
-      src: "poste_conduite.webp",
-      caption: "Intérieur — poste de conduite",
-    },
+    { src: "sideview.avif", caption: "Extérieur — vue latérale" },
+    { src: "avantpic.webp", caption: "Extérieur — face avant" },
+    { src: "interrior.png", caption: "Intérieur — espace passagers" },
+    { src: "poste_conduite.webp", caption: "Intérieur — poste de conduite" },
   ];
 
   return (
     <div className="about-page">
-      {/* ====================================================
-          HERO
-      ==================================================== */}
+      {/* ── HERO ── */}
       <section
         ref={heroRef}
         className={`contact-hero d-flex align-items-center justify-content-center position-relative scroll-reveal ${heroVisible ? "revealed" : ""}`}
@@ -100,9 +101,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* ====================================================
-          BUS
-      ==================================================== */}
+      {/* ── BUS ── */}
       <section
         ref={busRef}
         className={`contact-body py-5 scroll-reveal ${busVisible ? "revealed" : ""}`}
@@ -121,7 +120,7 @@ export default function About() {
                 capacité, conçu pour les réseaux de transport public à forte
                 affluence. Avec son plancher bas, ses grandes portes d'accès et
                 sa motorisation Euro IV, il offre un service fiable, confortable
-                et accessible à tous les voyageurs du réseau City Trans Fes.
+                et accessible à tous les voyageurs du réseau Issal Fes.
               </p>
 
               <div className="d-flex flex-wrap gap-2">
@@ -133,7 +132,7 @@ export default function About() {
               </div>
             </div>
 
-            {/* Galerie */}
+            {/* Galerie photos */}
             <div className="col-lg-7 reveal-right">
               <div className="about-gallery">
                 <div className="about-gallery-main position-relative rounded-4 overflow-hidden shadow-lg mb-3">
@@ -141,26 +140,7 @@ export default function About() {
                     src={photos[activePhoto].src}
                     alt={photos[activePhoto].caption}
                     className="about-gallery-img"
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                      e.target.nextSibling.style.display = "flex";
-                    }}
                   />
-
-                  <div
-                    className="about-gallery-fallback"
-                    style={{ display: "none" }}
-                  >
-                    <BusFrontFill
-                      size={64}
-                      style={{ color: "var(--brand)", opacity: 0.4 }}
-                    />
-
-                    <span className="mt-2 text-secondary small">
-                      Image non disponible
-                    </span>
-                  </div>
-
                   <div className="about-gallery-caption">
                     {photos[activePhoto].caption}
                   </div>
@@ -178,11 +158,7 @@ export default function About() {
                         src={photo.src}
                         alt={photo.caption}
                         className="about-thumb-img"
-                        onError={(e) => {
-                          e.target.style.display = "none";
-                        }}
                       />
-
                       <span className="about-thumb-num">{index + 1}</span>
                     </button>
                   ))}
@@ -193,9 +169,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* ====================================================
-          SPECS
-      ==================================================== */}
+      {/* ── SPECS ── */}
       <section
         ref={specsRef}
         className={`contact-body py-5 scroll-reveal ${specsVisible ? "revealed" : ""}`}
@@ -205,66 +179,27 @@ export default function About() {
             <span className="home-section-label d-block mb-2">
               Fiche technique
             </span>
-
             <h2 className="home-section-title">Spécifications</h2>
           </div>
 
           <div className="row g-3 justify-content-center">
-            <div className="col-6 col-md-3">
-              <div className="about-spec-card text-center">
-                <div className="about-spec-value">12 m</div>
-                <div className="about-spec-label">Longueur</div>
+            {[
+              { value: "12 m", label: "Longueur" },
+              { value: "90 – 95 passagers", label: "Capacité" },
+              { value: "Euro IV", label: "Norme émission" },
+              { value: "192 kW", label: "Puissance" },
+              { value: "34.4 L / 100 km", label: "Consommation" },
+              { value: "3 075 mm", label: "Hauteur" },
+              { value: "11 000 kg", label: "Poids à vide" },
+              { value: "ZK6118GCRC", label: "Châssis" },
+            ].map((spec, i) => (
+              <div key={i} className="col-6 col-md-3">
+                <div className="about-spec-card text-center">
+                  <div className="about-spec-value">{spec.value}</div>
+                  <div className="about-spec-label">{spec.label}</div>
+                </div>
               </div>
-            </div>
-
-            <div className="col-6 col-md-3">
-              <div className="about-spec-card text-center">
-                <div className="about-spec-value">90 – 95 passagers</div>
-                <div className="about-spec-label">Capacité</div>
-              </div>
-            </div>
-
-            <div className="col-6 col-md-3">
-              <div className="about-spec-card text-center">
-                <div className="about-spec-value">Euro IV</div>
-                <div className="about-spec-label">Norme émission</div>
-              </div>
-            </div>
-
-            <div className="col-6 col-md-3">
-              <div className="about-spec-card text-center">
-                <div className="about-spec-value">192 kW</div>
-                <div className="about-spec-label">Puissance</div>
-              </div>
-            </div>
-
-            <div className="col-6 col-md-3">
-              <div className="about-spec-card text-center">
-                <div className="about-spec-value">34.4 L / 100 km</div>
-                <div className="about-spec-label">Consommation</div>
-              </div>
-            </div>
-
-            <div className="col-6 col-md-3">
-              <div className="about-spec-card text-center">
-                <div className="about-spec-value">3 075 mm</div>
-                <div className="about-spec-label">Hauteur</div>
-              </div>
-            </div>
-
-            <div className="col-6 col-md-3">
-              <div className="about-spec-card text-center">
-                <div className="about-spec-value">11 000 kg</div>
-                <div className="about-spec-label">Poids à vide</div>
-              </div>
-            </div>
-
-            <div className="col-6 col-md-3">
-              <div className="about-spec-card text-center">
-                <div className="about-spec-value">ZK6118GCRC</div>
-                <div className="about-spec-label">Châssis</div>
-              </div>
-            </div>
+            ))}
           </div>
 
           <div className="about-quality-row d-flex flex-wrap justify-content-center gap-4 mt-5 reveal-up">
@@ -272,35 +207,28 @@ export default function About() {
               <span className="about-quality-icon">
                 <ShieldCheck size={20} />
               </span>
-
               <span className="small fw-500">
                 Anti-corrosion électrophorèse
               </span>
             </div>
-
             <div className="about-quality-item d-flex align-items-center gap-2">
               <span className="about-quality-icon">
                 <GearFill size={20} />
               </span>
-
               <span className="small fw-500">
                 Châssis éprouvé en production de masse
               </span>
             </div>
-
             <div className="about-quality-item d-flex align-items-center gap-2">
               <span className="about-quality-icon">
                 <StarFill size={20} />
               </span>
-
               <span className="small fw-500">Norme qualité internationale</span>
             </div>
-
             <div className="about-quality-item d-flex align-items-center gap-2">
               <span className="about-quality-icon">
                 <Speedometer size={20} />
               </span>
-
               <span className="small fw-500">
                 Performance optimisée en ville
               </span>
@@ -309,9 +237,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* ====================================================
-          APP
-      ==================================================== */}
+      {/* ── APP ── */}
       <section
         ref={appRef}
         className={`contact-body py-5 scroll-reveal ${appVisible ? "revealed" : ""}`}
@@ -321,9 +247,7 @@ export default function About() {
             <span className="home-section-label d-block mb-2">
               L'application
             </span>
-
-            <h2 className="home-section-title">City Trans Fes</h2>
-
+            <h2 className="home-section-title">Issal Fes</h2>
             <p
               className="text-secondary mx-auto mt-3"
               style={{ maxWidth: 560, lineHeight: 1.9 }}
@@ -334,82 +258,48 @@ export default function About() {
           </div>
 
           <div className="row g-4">
-            <div className="col-sm-6 col-lg-3">
-              <div className="home-feature-card h-100 text-center">
-                <div className="about-feature-icon mx-auto mb-3">
-                  <MapFill size={22} />
+            {[
+              {
+                icon: <MapFill size={22} />,
+                title: "Lignes & Itinéraires",
+                desc: "Consultez toutes les lignes et les arrêts sur une carte interactive.",
+              },
+              {
+                icon: <TicketFill size={22} />,
+                title: "Tickets en ligne",
+                desc: "Achetez et rechargez vos titres de transport directement.",
+              },
+              {
+                icon: <BellFill size={22} />,
+                title: "Alertes en temps réel",
+                desc: "Notifications pour les perturbations et changements d'horaires.",
+              },
+              {
+                icon: <PhoneFill size={22} />,
+                title: "100 % Mobile",
+                desc: "Interface responsive pensée pour téléphone et tablette.",
+              },
+            ].map((feature, i) => (
+              <div key={i} className="col-sm-6 col-lg-3">
+                <div className="home-feature-card h-100 text-center">
+                  <div className="about-feature-icon mx-auto mb-3">
+                    {feature.icon}
+                  </div>
+                  <h6 className="fw-bold mb-2">{feature.title}</h6>
+                  <p
+                    className="text-secondary small mb-0"
+                    style={{ lineHeight: 1.7 }}
+                  >
+                    {feature.desc}
+                  </p>
                 </div>
-
-                <h6 className="fw-bold mb-2">Lignes & Itinéraires</h6>
-
-                <p
-                  className="text-secondary small mb-0"
-                  style={{ lineHeight: 1.7 }}
-                >
-                  Consultez toutes les lignes et les arrêts sur une carte
-                  interactive.
-                </p>
               </div>
-            </div>
-
-            <div className="col-sm-6 col-lg-3">
-              <div className="home-feature-card h-100 text-center">
-                <div className="about-feature-icon mx-auto mb-3">
-                  <TicketFill size={22} />
-                </div>
-
-                <h6 className="fw-bold mb-2">Tickets en ligne</h6>
-
-                <p
-                  className="text-secondary small mb-0"
-                  style={{ lineHeight: 1.7 }}
-                >
-                  Achetez et rechargez vos titres de transport directement.
-                </p>
-              </div>
-            </div>
-
-            <div className="col-sm-6 col-lg-3">
-              <div className="home-feature-card h-100 text-center">
-                <div className="about-feature-icon mx-auto mb-3">
-                  <BellFill size={22} />
-                </div>
-
-                <h6 className="fw-bold mb-2">Alertes en temps réel</h6>
-
-                <p
-                  className="text-secondary small mb-0"
-                  style={{ lineHeight: 1.7 }}
-                >
-                  Notifications pour les perturbations et changements
-                  d'horaires.
-                </p>
-              </div>
-            </div>
-
-            <div className="col-sm-6 col-lg-3">
-              <div className="home-feature-card h-100 text-center">
-                <div className="about-feature-icon mx-auto mb-3">
-                  <PhoneFill size={22} />
-                </div>
-
-                <h6 className="fw-bold mb-2">100 % Mobile</h6>
-
-                <p
-                  className="text-secondary small mb-0"
-                  style={{ lineHeight: 1.7 }}
-                >
-                  Interface responsive pensée pour téléphone et tablette.
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ====================================================
-          TEAM
-      ==================================================== */}
+      {/* ── TEAM ── */}
       <section
         ref={teamRef}
         className={`contact-body py-5 scroll-reveal ${teamVisible ? "revealed" : ""}`}
@@ -417,7 +307,6 @@ export default function About() {
         <div className="container py-3">
           <div className="text-center mb-5 reveal-up">
             <span className="home-section-label d-block mb-2">L'équipe</span>
-
             <h2 className="home-section-title">Les développeurs</h2>
           </div>
 
@@ -428,13 +317,10 @@ export default function About() {
                 <div className="about-avatar mx-auto mb-3">
                   <span>MA</span>
                 </div>
-
                 <h5 className="fw-bold mb-1">Mohammed-Amine Rhazi</h5>
-
                 <span className="about-role-badge mb-3 d-inline-block">
                   Développeur Full-Stack
                 </span>
-
                 <p
                   className="text-secondary small mb-4"
                   style={{ lineHeight: 1.7 }}
@@ -442,7 +328,6 @@ export default function About() {
                   Conception de l'interface React, animations et intégration API
                   Laravel.
                 </p>
-
                 <div className="d-flex justify-content-center gap-3">
                   <a
                     href="#"
@@ -452,7 +337,6 @@ export default function About() {
                   >
                     <Github size={18} />
                   </a>
-
                   <a
                     href="#"
                     className="about-social-btn"
@@ -461,7 +345,6 @@ export default function About() {
                   >
                     <Linkedin size={18} />
                   </a>
-
                   <a href="mailto:#" className="about-social-btn">
                     <EnvelopeFill size={18} />
                   </a>
@@ -475,20 +358,16 @@ export default function About() {
                 <div className="about-avatar mx-auto mb-3">
                   <span>MS</span>
                 </div>
-
                 <h5 className="fw-bold mb-1">Mehdi Semlali</h5>
-
                 <span className="about-role-badge mb-3 d-inline-block">
                   Développeur Full-Stack
                 </span>
-
                 <p
                   className="text-secondary small mb-4"
                   style={{ lineHeight: 1.7 }}
                 >
                   Architecture backend Laravel, base de données et API REST.
                 </p>
-
                 <div className="d-flex justify-content-center gap-3">
                   <a
                     href="#"
@@ -498,7 +377,6 @@ export default function About() {
                   >
                     <Github size={18} />
                   </a>
-
                   <a
                     href="#"
                     className="about-social-btn"
@@ -507,7 +385,6 @@ export default function About() {
                   >
                     <Linkedin size={18} />
                   </a>
-
                   <a href="mailto:#" className="about-social-btn">
                     <EnvelopeFill size={18} />
                   </a>

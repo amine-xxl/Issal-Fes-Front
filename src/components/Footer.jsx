@@ -14,7 +14,7 @@ import {
 } from "react-bootstrap-icons";
 import "../index.css";
 
-/* Tableau des liens sociaux — remplacer href par les vraies URLs plus tard */
+/* Tableau des liens sociaux pour faciliter le .MAP*/
 const socialLinks = [
   { icon: <Facebook />, href: "#", label: "Facebook" },
   { icon: <Instagram />, href: "#", label: "Instagram" },
