@@ -9,8 +9,17 @@ import {
   Newspaper,
   GeoAltFill,
   Mailbox2Flag,
+  HandIndexThumbFill,
+  XCircleFill,
 } from "react-bootstrap-icons";
 import "../index.css";
+
+/**
+ * COMPOSANT : News
+ * RÔLE : Affiche les actualités du réseau Issal Fes et la liste des lignes de bus.
+ * Ce composant permet aux usagers de s'informer sur les nouveautés, les perturbations
+ * en temps réel et de consulter le détail technique de chaque ligne (itinéraire).
+ */
 
 // URL de base de l'API Laravel
 const API_URL = "http://127.0.0.1:8000/api";
@@ -38,10 +47,19 @@ function truncate(text, max) {
 }
 
 export default function News() {
-  // Données récupérées depuis l'API
+  /**
+   * ÉTATS (Hooks useState) :
+   * - actualites, lignes, alertes : Données récupérées depuis le serveur.
+   * - selectedLigne : Gère la ligne à afficher dans la modale d'itinéraire.
+   * - loading : État visuel pendant le chargement des données.
+   * - activeTab : Bascule entre l'affichage "Actualités" et "Lignes".
+   */
   const [actualites, setActualites] = useState([]);
   const [lignes, setLignes] = useState([]);
   const [alertes, setAlertes] = useState([]);
+
+  // État pour la ligne sélectionnée (affichage itinéraire dans la modale)
+  const [selectedLigne, setSelectedLigne] = useState(null);
 
   // Indique si les données sont encore en cours de chargement
   const [loading, setLoading] = useState(true);
@@ -56,7 +74,11 @@ export default function News() {
   const [heroVisible, setHeroVisible] = useState(false);
   const [bodyVisible, setBodyVisible] = useState(false);
 
-  // Observer qui déclenche l'animation quand une section entre dans l'écran
+  /**
+   * EFFET : Scroll Reveal
+   * Utilise l'Intersection Observer pour déclencher des animations CSS
+   * dès que les sections entrent dans le champ de vision de l'utilisateur.
+   */
   useEffect(() => {
     const sections = [
       { ref: heroRef, set: setHeroVisible },
@@ -82,7 +104,11 @@ export default function News() {
     return () => observer.disconnect();
   }, []);
 
-  // Récupération des données depuis l'API au montage du composant
+  /**
+   * EFFET : Récupération des données (API)
+   * Au chargement du composant, on effectue 3 requêtes asynchrones en parallèle
+   * via Promise.all pour optimiser le temps d'attente.
+   */
   useEffect(() => {
     async function fetchData() {
       try {
@@ -177,14 +203,14 @@ export default function News() {
             <div className="admin-tabs">
               <button
                 className={`admin-tab-btn ${activeTab === "actualites" ? "admin-tab-btn--active" : ""}`}
-                onClick={() => setActiveTab("actualites")} // Permet de basculer vers l'onglet actualités
+                onClick={() => setActiveTab("actualites")}
               >
                 <Newspaper size={16} />
                 <span>Actualités</span>
               </button>
               <button
                 className={`admin-tab-btn ${activeTab === "lignes" ? "admin-tab-btn--active" : ""}`}
-                onClick={() => setActiveTab("lignes")} // Permet de basculer vers l'onglet lignes
+                onClick={() => setActiveTab("lignes")}
               >
                 <BusFrontFill size={16} />
                 <span>Lignes</span>
@@ -203,7 +229,7 @@ export default function News() {
             </div>
           )}
 
-          {/* Alertes actives — affichées peu importe l'onglet */}
+          {/* Alertes actives : Affichage conditionnel des perturbations réseau */}
           {!loading &&
             alertes
               .filter((a) => a.statut === "active")
@@ -228,7 +254,6 @@ export default function News() {
           {/* ── ONGLET ACTUALITÉS ── */}
           {!loading && activeTab === "actualites" && (
             <>
-              {/* Article à la une — le premier de la liste */}
               {featured && (
                 <div className="news-featured mb-5 reveal-left position-relative overflow-hidden">
                   <div
@@ -242,7 +267,6 @@ export default function News() {
                     className="row g-0 align-items-stretch position-relative"
                     style={{ zIndex: 1 }}
                   >
-                    {/* Image si disponible */}
                     {getImageUrl(featured.image) && (
                       <div className="col-lg-5">
                         <img
@@ -283,9 +307,7 @@ export default function News() {
                 </div>
               )}
 
-              {/* Grille des autres articles */}
               <div className="row g-4">
-                {/* Message vide si aucun article */}
                 {grid.length === 0 && !featured ? (
                   <div className="col-12 text-center py-5">
                     <div style={{ opacity: 0.5 }}>
@@ -294,10 +316,6 @@ export default function News() {
                     <h4 className="mt-3 text-secondary fw-bold">
                       Aucun article disponible
                     </h4>
-                    <p className="text-secondary">
-                      Les actualités apparaîtront ici dès qu'elles seront
-                      publiées.
-                    </p>
                   </div>
                 ) : (
                   grid.map((article, i) => (
@@ -314,7 +332,6 @@ export default function News() {
                           <Newspaper />
                         </div>
 
-                        {/* Image de l'article si disponible */}
                         {getImageUrl(article.image) && (
                           <div className="news-card-img-wrap">
                             <img
@@ -353,7 +370,6 @@ export default function News() {
           {/* ── ONGLET LIGNES ── */}
           {!loading && activeTab === "lignes" && (
             <div className="row g-4">
-              {/* Message vide si aucune ligne */}
               {lignes.length === 0 ? (
                 <div className="col-12 text-center py-5">
                   <div style={{ opacity: 0.5 }}>
@@ -362,9 +378,6 @@ export default function News() {
                   <h4 className="mt-3 text-secondary fw-bold">
                     Aucune ligne disponible
                   </h4>
-                  <p className="text-secondary">
-                    Les lignes de bus apparaîtront ici.
-                  </p>
                 </div>
               ) : (
                 lignes.map((ligne, i) => (
@@ -373,7 +386,12 @@ export default function News() {
                     className="col-sm-6 col-lg-4 feature-card-stagger"
                     style={{ "--fi": i }}
                   >
-                    <div className="news-card h-100 position-relative overflow-hidden d-flex flex-column">
+                    {/* Le clic sur la carte ouvre la modale d'itinéraire détaillé */}
+                    <div 
+                      className="news-card h-100 position-relative overflow-hidden d-flex flex-column"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setSelectedLigne(ligne)}
+                    >
                       <div
                         className="news-card-watermark"
                         style={{ fontSize: 120 }}
@@ -385,8 +403,7 @@ export default function News() {
                         className="news-card-body position-relative d-flex flex-column h-100"
                         style={{ zIndex: 1, paddingTop: 24 }}
                       >
-                        {/* Badge numéro de ligne */}
-                        <div className="d-flex align-items-center gap-2 mb-3">
+                        <div className="d-flex align-items-center justify-content-between mb-3">
                           <span
                             className="news-badge news-badge-featured"
                             style={{
@@ -396,9 +413,9 @@ export default function News() {
                           >
                             Ligne {ligne.numero}
                           </span>
+                          <HandIndexThumbFill className="text-muted hand-pointing-icon" size={18} title="Cliquez pour voir l'itinéraire" />
                         </div>
 
-                        {/* Départ → Arrivée */}
                         <h5 className="news-card-title mt-2 mb-3">
                           <GeoAltFill className="me-2 text-danger" size={16} />
                           {ligne.depart}{" "}
@@ -409,10 +426,7 @@ export default function News() {
                           {ligne.arrivee}
                         </h5>
 
-                        <p
-                          className="news-card-excerpt"
-                          style={{ flexGrow: 1 }}
-                        >
+                        <p className="news-card-excerpt" style={{ flexGrow: 1 }}>
                           {truncate(ligne.description, 120)}
                         </p>
 
@@ -420,6 +434,9 @@ export default function News() {
                           <span className="news-date">
                             <BusFrontFill className="me-1" size={12} />
                             Issal Fes
+                          </span>
+                          <span className="text-brand fw-bold" style={{ fontSize: 11 }}>
+                            Voir trajet <ArrowRightCircleFill className="ms-1" />
                           </span>
                         </div>
                       </div>
@@ -430,21 +447,129 @@ export default function News() {
             </div>
           )}
 
-          {/* Encart newsletter */}
+          {/* 
+            ── MODALE POUR L'ITINÉRAIRE DÉTAILLÉ ──
+            FONCTIONNALITÉ : Affiche visuellement les arrêts de bus pour les trajets "Aller" et "Retour".
+            Le défilement est horizontal pour simuler une ligne de temps/parcours.
+          */}
+          {selectedLigne && (
+            <div className="modal-backdrop-custom" onClick={() => setSelectedLigne(null)}>
+              <div 
+                className="modal-card" 
+                style={{ maxWidth: "900px", width: "95%" }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
+                  <div className="d-flex align-items-center gap-3">
+                    <div className="p-3 bg-brand-light rounded-circle text-brand">
+                      <BusFrontFill size={28} />
+                    </div>
+                    <div>
+                      <h4 className="fw-bold mb-1" style={{ color: "#1e3a5f" }}>
+                        Itinéraire Ligne {selectedLigne.numero}
+                      </h4>
+                      <p className="text-secondary mb-0" style={{ fontSize: 14 }}>
+                        {selectedLigne.depart} <ArrowRightCircleFill className="mx-1" /> {selectedLigne.arrivee}
+                      </p>
+                    </div>
+                  </div>
+                  <button className="btn btn-link text-danger p-0" onClick={() => setSelectedLigne(null)}>
+                    <XCircleFill size={32} />
+                  </button>
+                </div>
+
+                <div className="modal-body py-2">
+                  {/* Trajet ALLER */}
+                  <div className="mb-5">
+                    <div className="d-flex align-items-center gap-2 mb-4">
+                      <span className="badge bg-primary px-3 py-2" style={{ fontSize: 12, borderRadius: 8 }}>TRAJET ALLER</span>
+                      <div className="flex-grow-1 border-bottom" style={{ opacity: 0.1 }} />
+                    </div>
+
+                    <div className="trajet-view-horizontal overflow-auto pb-4" style={{ scrollbarWidth: "thin" }}>
+                      <div className="d-flex align-items-center gap-0 min-width-max-content px-3">
+                        <div className="trajet-stop trajet-stop--main">
+                          <div className="trajet-dot trajet-dot--start" />
+                          <span className="trajet-name">{selectedLigne.depart}</span>
+                        </div>
+
+                        {selectedLigne.itineraires && selectedLigne.itineraires
+                          .filter(i => i.direction === "aller")
+                          .map((stop) => (
+                            <React.Fragment key={stop.id}>
+                              <div className="trajet-line" />
+                              <div className="trajet-stop">
+                                <BusFrontFill size={10} className="mb-1 text-muted" style={{ opacity: 0.6 }} />
+                                <div className="trajet-dot" />
+                                <span className="trajet-name">{stop.nom_arret}</span>
+                              </div>
+                            </React.Fragment>
+                          ))}
+
+                        <div className="trajet-line" />
+                        <div className="trajet-stop trajet-stop--main">
+                          <div className="trajet-dot trajet-dot--end" />
+                          <span className="trajet-name">{selectedLigne.arrivee}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Trajet RETOUR */}
+                  <div>
+                    <div className="d-flex align-items-center gap-2 mb-4">
+                      <span className="badge bg-secondary px-3 py-2" style={{ fontSize: 12, borderRadius: 8 }}>TRAJET RETOUR</span>
+                      <div className="flex-grow-1 border-bottom" style={{ opacity: 0.1 }} />
+                    </div>
+
+                    <div className="trajet-view-horizontal overflow-auto pb-4" style={{ scrollbarWidth: "thin" }}>
+                      <div className="d-flex align-items-center gap-0 min-width-max-content px-3">
+                        <div className="trajet-stop trajet-stop--main">
+                          <div className="trajet-dot trajet-dot--start" />
+                          <span className="trajet-name">{selectedLigne.arrivee}</span>
+                        </div>
+
+                        {selectedLigne.itineraires && selectedLigne.itineraires
+                          .filter(i => i.direction === "retour")
+                          .map((stop) => (
+                            <React.Fragment key={stop.id}>
+                              <div className="trajet-line" />
+                              <div className="trajet-stop">
+                                <BusFrontFill size={10} className="mb-1 text-muted" style={{ opacity: 0.6 }} />
+                                <div className="trajet-dot" />
+                                <span className="trajet-name">{stop.nom_arret}</span>
+                              </div>
+                            </React.Fragment>
+                          ))}
+
+                        <div className="trajet-line" />
+                        <div className="trajet-stop trajet-stop--main">
+                          <div className="trajet-dot trajet-dot--end" />
+                          <span className="trajet-name">{selectedLigne.depart}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-center mt-5 pt-3 border-top">
+                  <button className="btn-ctf-primary px-5" onClick={() => setSelectedLigne(null)}>
+                    Fermer la vue
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="contact-newsletter-box mt-5 reveal-up">
             <div className="fs-4 mb-2">
               <Mailbox2Flag />
             </div>
             <h6 className="fw-bold mb-1">Restez informé en temps réel</h6>
             <p className="mb-3" style={{ fontSize: 13, opacity: 0.85 }}>
-              Recevez perturbations, nouveaux horaires et offres directement par
-              email.
+              Recevez perturbations, nouveaux horaires et offres directement par email.
             </p>
-            <Link
-              to="/Contact"
-              className="btn-ctf-primary"
-              style={{ fontSize: 13, padding: "9px 22px" }}
-            >
+            <Link to="/Contact" className="btn-ctf-primary" style={{ fontSize: 13, padding: "9px 22px" }}>
               S'abonner <ArrowRightCircleFill />
             </Link>
           </div>

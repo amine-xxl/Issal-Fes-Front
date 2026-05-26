@@ -17,12 +17,20 @@
    FOND GLOBAL — Motif arabesque visible sur toutes les pages
    ============================================================ */
 
+/**
+ * Conteneur principal de l'application (React App)
+ * - min-height: 100vh permet au fond de couvrir tout l'écran même si le contenu est court.
+ * - overflow-x: hidden est CRUCIAL ici : il empêche l'apparition d'une barre de défilement 
+ *   horizontale globale si une animation ou un élément dépasse légèrement à droite, 
+ *   garantissant ainsi une expérience fluide sur mobile sans "flottement" latéral.
+ */
 .App {
   min-height: 100vh;
   background-image: url("./assets/bgArabesque.png");
   background-repeat: repeat;
   background-size: 8%;
   background-position: center;
+  overflow-x: hidden; 
 }
 
 /* Motif agrandi sur mobile pour rester lisible */
@@ -816,6 +824,22 @@
   color: #1e3a5f;
 }
 
+/* ── Ajustements Responsive Home (Évite le débordement) ── */
+@media (max-width: 991px) {
+  .home-float-card-white {
+    left: 0 !important; /* On ramène la carte vers l'intérieur */
+    top: 10px !important;
+  }
+  .home-float-card-blue {
+    right: 0 !important; /* On ramène la carte vers l'intérieur */
+    bottom: 10px !important;
+  }
+  
+  .home-departure-pill {
+    max-width: calc(100% - 40px); /* S'assure qu'elle ne dépasse pas */
+  }
+}
+
 
 /* ============================================================
    HOME — SECTION 5 : CARTES FONCTIONNALITÉS
@@ -1299,8 +1323,8 @@
 .contact-spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-top-color: #fff;
+  border: 2px solid var(--brand-light);
+  border-top-color: var(--brand);
   border-radius: 50%;
   display: inline-block;
   animation: spin 0.7s linear infinite;
@@ -2364,21 +2388,40 @@
 .modal-backdrop-custom {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
+  animation: modalFadeIn 0.3s ease-out forwards;
 }
 
-/* Carte du modal */
+/* Carte du modal avec animation pop */
 .modal-card {
   background: white;
-  border-radius: 16px;
+  border-radius: 24px;
   padding: 2rem;
   width: 100%;
   max-width: 480px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: modalPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 /* ============================================================
@@ -2424,14 +2467,29 @@
 }
 
 /* ── Custom Table ── */
+
+/**
+ * Conteneur de la table avec défilement horizontal.
+ * - overflow-x: auto : Affiche une barre de défilement uniquement si le contenu (la table) 
+ *   est plus large que l'écran (ex: sur mobile).
+ * - -webkit-overflow-scrolling: touch : Assure un défilement fluide et naturel sur les appareils iOS.
+ */
 .admin-table-wrap {
   border-radius: 16px;
-  overflow: hidden;
+  overflow-x: auto; 
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  -webkit-overflow-scrolling: touch; 
 }
 
+/**
+ * Configuration de la table pour le responsive.
+ * - min-width: 600px : Empêche la table de trop se compresser sur petit écran.
+ *   Si l'écran fait 375px, la table gardera ses 600px et le parent (.admin-table-wrap) 
+ *   permettra de scroller horizontalement pour tout voir sans casser la mise en page.
+ */
 .admin-custom-table {
   width: 100%;
+  min-width: 600px; 
   border-collapse: collapse;
   font-size: 14px;
 }
@@ -2745,4 +2803,272 @@
     width: 100%;
     opacity: 0;
   }
+}
+
+/* ── Toggle ON/OFF pour les notifications (UserInfo) ──
+   À ajouter dans index.css avec les autres composants custom */
+
+.userinfo-toggle {
+  width: 48px;
+  height: 26px;
+  border-radius: 999px;
+  background: #ccc;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.25s ease;
+  flex-shrink: 0;
+}
+
+/* État actif : fond vert/brand */
+.userinfo-toggle--on {
+  background: var(--brand);
+}
+
+/* Le rond qui glisse à l'intérieur */
+.userinfo-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.25s ease;
+  display: block;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Quand activé, le rond se déplace à droite */
+.userinfo-toggle--on .userinfo-toggle-thumb {
+  transform: translateX(22px);
+}
+
+/* ── STYLES POUR L'AFFICHAGE DES TRAJETS (ITINÉRAIRES) ── */
+
+.trajet-container {
+  padding: 10px 0;
+  white-space: nowrap;
+}
+
+.trajet-stop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+  position: relative;
+}
+
+.trajet-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--brand);
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.trajet-dot--start {
+  border-color: #2ecc71; /* Vert pour le départ */
+  width: 18px;
+  height: 18px;
+}
+
+.trajet-dot--end {
+  border-color: #e74c3c; /* Rouge pour l'arrivée */
+  width: 18px;
+  height: 18px;
+}
+
+.trajet-name {
+  font-size: 10px;
+  font-weight: 600;
+  margin-top: 8px;
+  color: #2d3436;
+  text-align: center;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trajet-line {
+  height: 4px;
+  background: var(--brand);
+  flex-grow: 1;
+  min-width: 30px;
+  margin-bottom: 22px; /* Aligné avec les dots */
+  border-radius: 2px;
+  opacity: 0.4;
+}
+
+.trajet-stop--main .trajet-name {
+  color: var(--brand);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/* Animation au survol */
+.trajet-stop:hover .trajet-dot {
+  transform: scale(1.3);
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* ── VUE HORIZONTALE DÉTAILLÉE (POUR LA MODALE) ── */
+
+.trajet-view-horizontal {
+  background: rgba(248, 250, 255, 0.5);
+  border-radius: 20px;
+  padding: 30px 10px;
+  border: 1px dashed rgba(188, 200, 55, 0.3);
+}
+
+.min-width-max-content {
+  min-width: max-content;
+}
+
+/* Barre de défilement stylisée pour l'itinéraire */
+.trajet-view-horizontal::-webkit-scrollbar {
+  height: 6px;
+}
+
+.trajet-view-horizontal::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.trajet-view-horizontal::-webkit-scrollbar-thumb {
+  background: var(--brand);
+  border-radius: 10px;
+}
+
+.trajet-view-horizontal::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-dark);
+}
+
+/* ── DARK MODE POUR LES ITINÉRAIRES ── */
+
+[data-theme='dark'] .modal-card {
+  background: var(--bg-card-solid);
+  border: 1px solid var(--border-color);
+}
+
+[data-theme='dark'] .trajet-view-horizontal {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(188, 200, 55, 0.2);
+}
+
+[data-theme='dark'] .trajet-name {
+  color: var(--text-secondary);
+}
+
+[data-theme='dark'] .trajet-dot {
+  background: #1a1d21; /* Fond sombre pour le point au milieu */
+}
+
+[data-theme='dark'] .trajet-line {
+  opacity: 0.25;
+}
+
+[data-theme='dark'] .trajet-view-horizontal::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .hand-pointing-icon {
+  color: var(--text-secondary) !important;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+[data-theme='dark'] .hand-pointing-icon:hover {
+  opacity: 1;
+  color: var(--brand) !important;
+}
+
+.admin-form-header {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+}
+
+[data-theme='dark'] .admin-form-header {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================================
+   PRO INFOS — ESPACE CHAUFFEUR
+   ============================================================ */
+
+.bus-assignment-badge {
+  display: inline-flex;
+  background: var(--brand);
+  padding: 15px 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(188, 200, 55, 0.3);
+  color: #fff;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+}
+
+.bus-number {
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+/* Timeline Verticale */
+.pro-timeline {
+  border-left: 2px solid transparent; 
+}
+
+.timeline-v-line {
+  position: absolute;
+  top: 10px;
+  bottom: 40px;
+  left: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--brand), rgba(188, 200, 55, 0.1));
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -9px;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--brand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.timeline-dot--main {
+  left: -13px;
+  width: 24px;
+  height: 24px;
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 0 0 5px var(--brand-light);
+}
+
+.inner-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--brand);
+  border-radius: 50%;
+}
+
+.bg-success-light { background-color: rgba(25, 135, 84, 0.1); }
+.bg-danger-light { background-color: rgba(220, 53, 69, 0.1); }
+
+.timeline-item {
+  animation: timelineSlideIn 0.5s ease both;
+  animation-delay: calc(0.5s + var(--ti, 0) * 0.1s);
+}
+
+@keyframes timelineSlideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
 }

@@ -1,3 +1,9 @@
+/**
+ * Composant Contact
+ * Permet aux utilisateurs d'envoyer des messages, suggestions ou réclamations.
+ * Gère la validation des champs via le backend Laravel et affiche des retours visuels.
+ */
+
 import React, { useState, useEffect, useRef } from "react";
 import {
   EnvelopeFill,
@@ -13,6 +19,9 @@ import {
 } from "react-bootstrap-icons";
 import "../index.css";
 
+// URL de base de l'API Laravel
+const API_URL = "http://127.0.0.1:8000/api";
+
 // Liste des sujets disponibles dans le menu déroulant
 const SUJETS = [
   "Retard d'un bus",
@@ -25,7 +34,12 @@ const SUJETS = [
 ];
 
 export default function Contact() {
-  // État du formulaire — tous les champs dans un seul objet
+  /**
+   * État Local (useState) :
+   * - form : Stocke les données saisies par l'utilisateur.
+   * - status : Suit l'état de la requête (null, loading, success, error).
+   * - errors : Récupère les messages d'erreur de validation envoyés par l'API (422 Unprocessable Entity).
+   */
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -34,13 +48,14 @@ export default function Contact() {
     subscribe: false,
   });
 
-  // Statut de la soumission : null = formulaire vide, "loading", "success", "error"
   const [status, setStatus] = useState(null);
-
-  // Erreurs de validation renvoyées par Laravel (ex: champ vide, email invalide)
   const [errors, setErrors] = useState({});
 
-  // Refs pour les animations scroll reveal
+  /**
+   * Animation au scroll :
+   * Utilisation de useRef pour cibler les éléments et de IntersectionObserver 
+   * pour déclencher les animations quand ils apparaissent à l'écran.
+   */
   const heroRef = useRef(null);
   const formRef = useRef(null);
   const infoRef = useRef(null);
@@ -49,7 +64,6 @@ export default function Contact() {
   const [formVisible, setFormVisible] = useState(false);
   const [infoVisible, setInfoVisible] = useState(false);
 
-  // Observer qui déclenche l'animation quand une section entre dans l'écran
   useEffect(() => {
     const sections = [
       { ref: heroRef, set: setHeroVisible },
@@ -57,29 +71,29 @@ export default function Contact() {
       { ref: infoRef, set: setInfoVisible },
     ];
 
-    const observer = new IntersectionObserver( // API native pour détecter quand un élément entre dans le viewport (pas besoin de librairie externe)
-      (entries) => { // entries contient les éléments observés qui ont changé de visibilité
-        entries.forEach((entry) => { // Pour chaque élément qui a changé de visibilité
-          if (entry.isIntersecting) { // Si la section est visible à l'écran
-            // On cherche quelle section vient d'apparaître et on la marque visible
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
             const found = sections.find((s) => s.ref.current === entry.target);
             if (found) found.set(true);
           }
         });
       },
-      { threshold: 0.1 }, // Une petite partie de la section doit être visible pour déclencher l'animation
+      { threshold: 0.1 },
     );
 
-    // On attache l'observer à chaque section
     sections.forEach((s) => {
       if (s.ref.current) observer.observe(s.ref.current);
     });
 
-    // Nettoyage quand le composant se démonte
     return () => observer.disconnect();
   }, []);
 
-  // Mise à jour d'un champ quand l'utilisateur tape
+  /**
+   * Gestionnaire de saisie (handleChange)
+   * Met à jour dynamiquement l'état 'form' à chaque caractère tapé.
+   */
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
 
@@ -95,17 +109,20 @@ export default function Contact() {
     }
   }
 
-  // Envoi du formulaire à l'API Laravel
+  /**
+   * Soumission du formulaire (handleSubmit)
+   * Communique avec l'API Backend via la méthode POST.
+   */
   function handleSubmit(e) {
-    e.preventDefault(); // Empêche le rechargement de la page
+    e.preventDefault(); 
     setStatus("loading");
     setErrors({});
 
-    fetch("http://127.0.0.1:8000/api/contact", {
+    fetch(`${API_URL}/contact`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json", // On envoie du JSON
-        Accept: "application/json", // Laravel renvoie du JSON et non du HTML
+        "Content-Type": "application/json",
+        Accept: "application/json",
       },
       body: JSON.stringify(form),
     })
@@ -113,19 +130,18 @@ export default function Contact() {
         const data = await res.json().catch(() => null);
 
         if (res.ok) {
-          // Succès : le message a été enregistré
+          // Succès : le message a été enregistré en base de données
           setStatus("success");
         } else if (res.status === 422 && data?.errors) {
-          // Erreur de validation Laravel (champs manquants ou invalides)
+          // Erreur de validation (ex: email invalide, champ manquant) renvoyée par Laravel
           setErrors(data.errors);
-          setStatus("error");
+          setStatus(null); // On repasse en mode édition pour corriger les erreurs
         } else {
-          // Autre erreur serveur
           setStatus("error");
         }
       })
       .catch(() => {
-        // Erreur réseau (serveur éteint, pas de connexion...)
+        // Erreur de connexion au serveur
         setStatus("error");
       });
   }
@@ -150,7 +166,6 @@ export default function Contact() {
         ref={heroRef}
         className={`contact-hero d-flex align-items-center justify-content-center position-relative scroll-reveal ${heroVisible ? "revealed" : ""}`}
       >
-        {/* Voile semi-transparent par-dessus l'arabesque */}
         <div className="contact-hero-overlay" />
 
         <div
@@ -280,7 +295,7 @@ export default function Contact() {
                       {errors.name && (
                         <span className="contact-error-msg">
                           <ExclamationTriangleFill className="me-1" size={12} />
-                          {errors.name}
+                          {errors.name[0]}
                         </span>
                       )}
                     </div>
@@ -303,7 +318,7 @@ export default function Contact() {
                       {errors.email && (
                         <span className="contact-error-msg">
                           <ExclamationTriangleFill className="me-1" size={12} />
-                          {errors.email}
+                          {errors.email[0]}
                         </span>
                       )}
                     </div>
@@ -332,7 +347,7 @@ export default function Contact() {
                       {errors.subject && (
                         <span className="contact-error-msg">
                           <ExclamationTriangleFill className="me-1" size={12} />
-                          {errors.subject}
+                          {errors.subject[0]}
                         </span>
                       )}
                     </div>
@@ -355,7 +370,7 @@ export default function Contact() {
                       {errors.message && (
                         <span className="contact-error-msg">
                           <ExclamationTriangleFill className="me-1" size={12} />
-                          {errors.message}
+                          {errors.message[0]}
                         </span>
                       )}
                     </div>

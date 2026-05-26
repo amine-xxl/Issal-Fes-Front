@@ -1,3 +1,9 @@
+/**
+ * Composant Login
+ * Interface d'authentification pour les utilisateurs existants.
+ * Gère l'envoi des identifiants au backend et la mise à jour du contexte d'authentification global.
+ */
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -12,68 +18,71 @@ import { useAuth } from "../context/AuthContext";
 import "../index.css";
 
 export default function Login() {
-  // Afficher ou cacher le mot de passe
+  /**
+   * États locaux :
+   * - showPassword : Gère la visibilité du texte dans le champ mot de passe.
+   * - formData : Stocke les entrées utilisateur (email, password).
+   * - loading : Indique si la requête vers l'API est en cours.
+   * - error / errors : Gèrent les messages d'erreur globaux ou par champ.
+   */
   const [showPassword, setShowPassword] = useState(false);
-
-  // Données du formulaire (email + mot de passe)
   const [formData, setFormData] = useState({ email: "", password: "" });
-
-  // Erreur générale (ex: serveur inaccessible, mauvais identifiants)
   const [error, setError] = useState(null);
-
-  // Erreurs de validation par champ renvoyées par Laravel
   const [errors, setErrors] = useState({});
-
-  // Indique si la requête est en cours (pour désactiver le bouton)
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth(); // Fonction login du contexte global (stocke user + token)
+  // useAuth() permet d'accéder aux données globales de l'utilisateur connecté
+  const { login } = useAuth(); 
   const navigate = useNavigate();
 
-  // Mise à jour d'un champ quand l'utilisateur tape
+  // Met à jour l'état formData dynamiquement lors de la saisie
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
-  // Envoi du formulaire à l'API Laravel
+  /**
+   * handleSubmit : Envoie les données au serveur Laravel.
+   * Si l'authentification réussit, on stocke le token et on redirige.
+   */
   async function handleSubmit(e) {
-    e.preventDefault(); // Empêche le rechargement de la page
+    e.preventDefault(); 
     setLoading(true);
     setError(null);
     setErrors({});
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json", // Laravel renvoie du JSON et non du HTML
+      const res = await fetch(
+        "http://127.0.0.1:8000/api/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(formData),
         },
-        body: JSON.stringify(formData),
-      });
+      );
 
       const data = await res.json();
 
       if (!res.ok) {
-        // Erreur de validation (ex: champ vide) ou mauvais identifiants
+        // En cas d'erreur 422 (validation) ou 401 (mauvais identifiants)
         if (data.errors) {
           setErrors(data.errors);
         } else {
-          setError(
-            data.message || "Identifiants et/ou Mot De Passe incorrects",
-          );
+          setError(data.message || "Identifiants et/ou Mot De Passe incorrects");
         }
         return;
       }
 
-      // Succès : on stocke le user et le token, puis on redirige vers l'accueil
+      // Appel de la fonction login du contexte pour persister la session (localStorage + état React)
       login(data.user, data.token);
+      
+      // Redirection vers la page d'accueil après succès
       navigate("/");
     } catch (err) {
-      // Erreur réseau (serveur éteint, pas de connexion...)
       setError("Serveur inaccessible !");
     } finally {
-      // Dans tous les cas, on arrête le spinner
       setLoading(false);
     }
   }
@@ -81,7 +90,7 @@ export default function Login() {
   return (
     <div className="auth-page d-flex align-items-center justify-content-center min-vh-100">
       <div className="auth-card p-4 p-md-5 shadow-lg">
-        {/* En-tête avec logo et titre */}
+        {/* En-tête : Logo et slogan */}
         <div className="text-center mb-4">
           <BusFrontFill className="auth-brand-icon mb-2" />
           <h2 className="auth-title">Issal Fes</h2>
@@ -90,11 +99,11 @@ export default function Login() {
           </p>
         </div>
 
-        {/* Message d'erreur général (affiché si error !== null) */}
+        {/* Alerte d'erreur générale */}
         {error && <div className="alert alert-danger py-2 mb-3">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          {/* Champ Email */}
+          {/* Saisie Email */}
           <div className="auth-field mb-3">
             <label className="auth-label">Adresse Email</label>
             <div className="auth-input-wrapper">
@@ -109,13 +118,12 @@ export default function Login() {
                 required
               />
             </div>
-            {/* Erreur Laravel pour ce champ */}
             {errors.email && (
               <small className="text-danger">{errors.email[0]}</small>
             )}
           </div>
 
-          {/* Champ Mot de passe avec bouton voir/cacher */}
+          {/* Saisie Mot de passe avec bascule afficher/masquer */}
           <div className="auth-field mb-3">
             <label className="auth-label">Mot de passe</label>
             <div className="auth-input-wrapper">
@@ -129,7 +137,6 @@ export default function Login() {
                 onChange={handleChange}
                 required
               />
-              {/* Icône eye pour afficher/masquer le mot de passe */}
               <span
                 className="auth-eye"
                 onClick={() => setShowPassword(!showPassword)}
@@ -142,7 +149,7 @@ export default function Login() {
             )}
           </div>
 
-          {/* Bouton de connexion — désactivé pendant le chargement */}
+          {/* Bouton de validation dynamique (affiche un spinner lors du chargement) */}
           <button
             type="submit"
             className="auth-btn w-100 mb-3"
@@ -165,6 +172,7 @@ export default function Login() {
             )}
           </button>
 
+          {/* Lien de redirection vers l'inscription */}
           <p className="text-center auth-switch mb-0">
             Pas encore de compte ?{" "}
             <Link to="/Signup" className="auth-link">

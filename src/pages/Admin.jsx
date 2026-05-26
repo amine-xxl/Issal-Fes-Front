@@ -9,20 +9,23 @@ import {
   Newspaper,
   ExclamationTriangleFill,
   ShieldFill,
+  EnvelopeFill,
+  CheckCircleFill,
 } from "react-bootstrap-icons";
 import "../index.css";
 
-/* ── Hook de révélation au scroll ── */
+/**
+ * PAGE : Admin
+ * RÔLE : Tableau de bord central pour l'administration du réseau.
+ * Permet de gérer (CRUD) les lignes de bus, les actualités et les alertes réseau.
+ * L'accès est restreint aux utilisateurs ayant le rôle 'admin'.
+ */
+
 function useScrollReveal(threshold = 0.15) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
-      },
-      { threshold }
-    );
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold });
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
   }, [threshold]);
@@ -41,73 +44,43 @@ export default function Admin() {
   const [lignes, setLignes] = useState([]);
   const [actualites, setActualites] = useState([]);
   const [alertes, setAlertes] = useState([]);
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     if (!user || user.role !== "admin") navigate("/");
   }, [user, navigate]);
 
   useEffect(() => {
-    fetchLignes();
-    fetchActualites();
-    fetchAlertes();
+    fetchLignes(); fetchActualites(); fetchAlertes(); fetchMessages();
   }, []);
 
   const makeRequest = async (endpoint, method = "GET", body = null) => {
     const options = {
       method,
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: `Bearer ${token}` },
     };
     if (body) options.body = JSON.stringify(body);
-
     try {
       const response = await fetch(`${API_URL}${endpoint}`, options);
       const text = await response.text();
-      if (!text) return method === "GET" ? [] : {};
-      return JSON.parse(text);
-    } catch (error) {
-      console.error("Erreur API:", error);
-    }
+      return text ? JSON.parse(text) : (method === "GET" ? [] : {});
+    } catch (error) { console.error("Erreur API:", error); }
   };
 
-  const fetchLignes = async () => {
-    const data = await makeRequest("/lignes");
-    setLignes(Array.isArray(data) ? data : []);
-  };
-  const fetchActualites = async () => {
-    const data = await makeRequest("/actualites");
-    setActualites(Array.isArray(data) ? data : []);
-  };
-  const fetchAlertes = async () => {
-    const data = await makeRequest("/alertes");
-    setAlertes(Array.isArray(data) ? data : []);
-  };
+  const fetchLignes = async () => { const data = await makeRequest("/lignes"); setLignes(Array.isArray(data) ? data : []); };
+  const fetchActualites = async () => { const data = await makeRequest("/actualites"); setActualites(Array.isArray(data) ? data : []); };
+  const fetchAlertes = async () => { const data = await makeRequest("/alertes"); setAlertes(Array.isArray(data) ? data : []); };
+  const fetchMessages = async () => { const data = await makeRequest("/messages"); setMessages(Array.isArray(data) ? data : []); };
 
   const handleDelete = async (id) => {
     if (!window.confirm("Confirmer la suppression ?")) return;
-    const endpoint =
-      activeTab === "lignes" ? `/lignes/${id}` :
-      activeTab === "actualites" ? `/actualites/${id}` :
-      `/alertes/${id}`;
+    const endpoint = activeTab === "lignes" ? `/lignes/${id}` : activeTab === "actualites" ? `/actualites/${id}` : activeTab === "alertes" ? `/alertes/${id}` : `/messages/${id}`;
     await makeRequest(endpoint, "DELETE");
-    if (activeTab === "lignes") fetchLignes();
-    else if (activeTab === "actualites") fetchActualites();
-    else fetchAlertes();
+    if (activeTab === "lignes") fetchLignes(); else if (activeTab === "actualites") fetchActualites(); else if (activeTab === "alertes") fetchAlertes(); else fetchMessages();
   };
 
-  // Navigate to AjoutNews for editing — pass item data + mode
   const handleEdit = (item) => {
-    navigate("/ajout-news", {
-      state: {
-        activeTab,
-        editMode: true,
-        editId: item.id,
-        editData: item,
-      },
-    });
+    navigate("/ajout-news", { state: { activeTab, editMode: true, editId: item.id, editData: item } });
   };
 
   const truncateText = (text, length = 60) => {
@@ -117,214 +90,84 @@ export default function Admin() {
 
   return (
     <div className="admin-page">
-      {/* ══════════════════════════════════════════════
-          HERO
-      ══════════════════════════════════════════════ */}
-      <section
-        ref={heroRef}
-        className={`contact-hero d-flex align-items-center justify-content-center position-relative scroll-reveal ${heroVisible ? "revealed" : ""}`}
-      >
-        <div className="contact-hero-overlay" />
-        <div className="container position-relative text-center" style={{ zIndex: 1 }}>
-          <div className="contact-hero-icon reveal-up">
-            <ShieldFill size={32} />
-          </div>
-          <h1 className="contact-hero-title reveal-up" style={{ animationDelay: "0.1s" }}>
-            Dashboard Admin
-          </h1>
-          <p className="contact-hero-subtitle reveal-up" style={{ animationDelay: "0.2s" }}>
-            Gérez les lignes, actualités et alertes de Issal Fes.
-            <br />
-            Ajoutez, modifiez ou supprimez en toute simplicité.
-          </p>
-          <div className="d-flex align-items-center justify-content-center gap-3 reveal-up" style={{ animationDelay: "0.3s" }}>
-            <div className="contact-divider-line" />
-            <div className="contact-divider-diamond" />
-            <div className="contact-divider-line" />
-          </div>
+      <section ref={heroRef} className={`contact-hero d-flex align-items-center justify-content-center position-relative scroll-reveal ${heroVisible ? "revealed" : ""}`}>
+        <div className="contact-hero-overlay" /><div className="container position-relative text-center" style={{ zIndex: 1 }}>
+          <div className="contact-hero-icon reveal-up"><ShieldFill size={32} /></div>
+          <h1 className="contact-hero-title reveal-up" style={{ animationDelay: "0.1s" }}>Dashboard Admin</h1>
+          <p className="contact-hero-subtitle reveal-up" style={{ animationDelay: "0.2s" }}>Gérez les lignes, actualités et alertes de Issal Fes.</p>
+          <div className="d-flex align-items-center justify-content-center gap-3 reveal-up" style={{ animationDelay: "0.3s" }}><div className="contact-divider-line" /><div className="contact-divider-diamond" /><div className="contact-divider-line" /></div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════
-          BODY — Custom tabs + Custom table (no Bootstrap table)
-      ══════════════════════════════════════════════ */}
       <section className="contact-body py-5">
         <div className="container py-3">
           <div ref={tableRef} className={`scroll-reveal ${tableVisible ? "revealed" : ""}`}>
-
-            {/* ── Custom Tab Pills ── */}
             <div className="admin-tabs reveal-up">
-              <button
-                className={`admin-tab-btn ${activeTab === "lignes" ? "admin-tab-btn--active" : ""}`}
-                onClick={() => setActiveTab("lignes")}
-              >
-                <BusFrontFill size={16} />
-                <span>Lignes</span>
-              </button>
-              <button
-                className={`admin-tab-btn ${activeTab === "actualites" ? "admin-tab-btn--active" : ""}`}
-                onClick={() => setActiveTab("actualites")}
-              >
-                <Newspaper size={16} />
-                <span>Actualités</span>
-              </button>
-              <button
-                className={`admin-tab-btn ${activeTab === "alertes" ? "admin-tab-btn--active" : ""}`}
-                onClick={() => setActiveTab("alertes")}
-              >
-                <ExclamationTriangleFill size={16} />
-                <span>Alertes</span>
-              </button>
+              <button className={`admin-tab-btn ${activeTab === "lignes" ? "admin-tab-btn--active" : ""}`} onClick={() => setActiveTab("lignes")}><BusFrontFill size={16} /> <span>Lignes</span></button>
+              <button className={`admin-tab-btn ${activeTab === "actualites" ? "admin-tab-btn--active" : ""}`} onClick={() => setActiveTab("actualites")}><Newspaper size={16} /> <span>Actualités</span></button>
+              <button className={`admin-tab-btn ${activeTab === "alertes" ? "admin-tab-btn--active" : ""}`} onClick={() => setActiveTab("alertes")}><ExclamationTriangleFill size={16} /> <span>Alertes</span></button>
+              <button className={`admin-tab-btn ${activeTab === "messages" ? "admin-tab-btn--active" : ""}`} onClick={() => setActiveTab("messages")}><EnvelopeFill size={16} /> <span>Messages</span></button>
             </div>
 
-            {/* ── Add Button ── */}
             <div className="d-flex justify-content-end mb-3 reveal-up" style={{ animationDelay: "0.1s" }}>
-              <button
-                className="btn-ctf-primary"
-                onClick={() => navigate("/ajout-news", { state: { activeTab } })}
-              >
-                <PlusCircleFill />
-                Ajouter
-              </button>
+              {activeTab !== "messages" && (
+                <button className="btn-ctf-primary" onClick={() => navigate("/ajout-news", { state: { activeTab } })}><PlusCircleFill /> Ajouter</button>
+              )}
             </div>
 
-            {/* ── Table LIGNES ── */}
-            {activeTab === "lignes" && (
-              <div className="admin-table-wrap reveal-up" style={{ animationDelay: "0.15s" }}>
-                <table className="admin-custom-table">
-                  <thead>
-                    <tr>
-                      <th>Numéro</th>
-                      <th>Départ</th>
-                      <th>Arrivée</th>
-                      <th>Description</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {lignes.length === 0 ? (
-                      <tr><td colSpan="5" className="admin-table-empty">Aucune donnée</td></tr>
-                    ) : (
-                      lignes.map((item) => (
-                        <tr key={item.id}>
-                          <td>{truncateText(item.numero)}</td>
-                          <td>{truncateText(item.depart)}</td>
-                          <td>{truncateText(item.arrivee)}</td>
-                          <td>{truncateText(item.description)}</td>
-                          <td>
-                            <div className="d-flex gap-2">
-                              <button className="admin-action-btn admin-action-btn--edit" onClick={() => handleEdit(item)}>
-                                <PencilFill size={13} />
-                              </button>
-                              <button className="admin-action-btn admin-action-btn--delete" onClick={() => handleDelete(item.id)}>
-                                <TrashFill size={13} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            <div className="admin-table-wrap reveal-up" style={{ animationDelay: "0.15s" }}>
+                {activeTab === "lignes" && (
+                  <table className="admin-custom-table">
+                    <thead><tr><th>Numéro</th><th>Départ</th><th>Arrivée</th><th>Description</th><th>Actions</th></tr></thead>
+                    <tbody>
+                      {lignes.length === 0 ? <tr><td colSpan="5" className="admin-table-empty">Aucune donnée</td></tr> : 
+                        lignes.map(item => (<tr key={item.id}><td>{item.numero}</td><td>{item.depart}</td><td>{item.arrivee}</td><td>{truncateText(item.description)}</td>
+                          <td><div className="d-flex gap-2"><button className="admin-action-btn admin-action-btn--edit" onClick={() => handleEdit(item)}><PencilFill size={13} /></button>
+                          <button className="admin-action-btn admin-action-btn--delete" onClick={() => handleDelete(item.id)}><TrashFill size={13} /></button></div></td></tr>))
+                      }
+                    </tbody>
+                  </table>
+                )}
 
-            {/* ── Table ACTUALITES ── */}
-            {activeTab === "actualites" && (
-              <div className="admin-table-wrap reveal-up" style={{ animationDelay: "0.15s" }}>
-                <table className="admin-custom-table">
-                  <thead>
-                    <tr>
-                      <th>Image</th>
-                      <th>Titre</th>
-                      <th>Contenu</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {actualites.length === 0 ? (
-                      <tr><td colSpan="4" className="admin-table-empty">Aucune donnée</td></tr>
-                    ) : (
-                      actualites.map((item) => (
-                        <tr key={item.id}>
-                          <td>
-                            {item.image ? (
-                              <img src={item.image.startsWith("http") ? item.image : `http://127.0.0.1:8000${item.image}`} alt={item.titre} style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 8 }} />
-                            ) : (
-                              <div style={{ width: 50, height: 50, backgroundColor: '#eee', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <span style={{ fontSize: 10, color: '#999' }}>Aucune</span>
-                              </div>
-                            )}
-                          </td>
-                          <td>{truncateText(item.titre)}</td>
-                          <td>{truncateText(item.contenu)}</td>
-                          <td>
-                            <div className="d-flex gap-2">
-                              <button className="admin-action-btn admin-action-btn--edit" onClick={() => handleEdit(item)}>
-                                <PencilFill size={13} />
-                              </button>
-                              <button className="admin-action-btn admin-action-btn--delete" onClick={() => handleDelete(item.id)}>
-                                <TrashFill size={13} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                {activeTab === "actualites" && (
+                  <table className="admin-custom-table">
+                    <thead><tr><th>Image</th><th>Titre</th><th>Contenu</th><th>Actions</th></tr></thead>
+                    <tbody>
+                      {actualites.length === 0 ? <tr><td colSpan="4" className="admin-table-empty">Aucune donnée</td></tr> : 
+                        actualites.map(item => (<tr key={item.id}><td>{item.image && <img src={item.image.startsWith("http") ? item.image : `http://127.0.0.1:8000${item.image}`} alt="" style={{width:40, height:40, objectFit:'cover', borderRadius:8}} />}</td>
+                          <td>{item.titre}</td><td>{truncateText(item.contenu)}</td><td><div className="d-flex gap-2"><button className="admin-action-btn admin-action-btn--edit" onClick={() => handleEdit(item)}><PencilFill size={13} /></button>
+                          <button className="admin-action-btn admin-action-btn--delete" onClick={() => handleDelete(item.id)}><TrashFill size={13} /></button></div></td></tr>))
+                      }
+                    </tbody>
+                  </table>
+                )}
 
-            {/* ── Table ALERTES ── */}
-            {activeTab === "alertes" && (
-              <div className="admin-table-wrap reveal-up" style={{ animationDelay: "0.15s" }}>
-                <table className="admin-custom-table">
-                  <thead>
-                    <tr>
-                      <th>Ligne</th>
-                      <th>Type</th>
-                      <th>Message</th>
-                      <th>Statut</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {alertes.length === 0 ? (
-                      <tr><td colSpan="5" className="admin-table-empty">Aucune donnée</td></tr>
-                    ) : (
-                      alertes.map((item) => (
-                        <tr key={item.id}>
-                          <td>{item.ligne ? item.ligne.numero : item.ligne_id}</td>
-                          <td>
-                            <span className={`admin-badge ${item.type === "retard" ? "admin-badge--warning" : item.type === "perturbation" ? "admin-badge--danger" : "admin-badge--info"}`}>
-                              {item.type}
-                            </span>
-                          </td>
-                          <td>{truncateText(item.message)}</td>
-                          <td>
-                            <span className={`admin-badge ${item.statut === "active" ? "admin-badge--success" : "admin-badge--muted"}`}>
-                              {item.statut}
-                            </span>
-                          </td>
-                          <td>
-                            <div className="d-flex gap-2">
-                              <button className="admin-action-btn admin-action-btn--edit" onClick={() => handleEdit(item)}>
-                                <PencilFill size={13} />
-                              </button>
-                              <button className="admin-action-btn admin-action-btn--delete" onClick={() => handleDelete(item.id)}>
-                                <TrashFill size={13} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                {activeTab === "alertes" && (
+                  <table className="admin-custom-table">
+                    <thead><tr><th>Ligne</th><th>Type</th><th>Message</th><th>Statut</th><th>Actions</th></tr></thead>
+                    <tbody>
+                      {alertes.length === 0 ? <tr><td colSpan="5" className="admin-table-empty">Aucune donnée</td></tr> : 
+                        alertes.map(item => (<tr key={item.id}><td>{item.ligne?.numero || item.ligne_id}</td><td><span className={`admin-badge admin-badge--${item.type === 'retard' ? 'warning' : item.type === 'perturbation' ? 'danger' : 'info'}`}>{item.type}</span></td>
+                          <td>{truncateText(item.message)}</td><td><span className={`admin-badge admin-badge--${item.statut === 'active' ? 'success' : 'muted'}`}>{item.statut}</span></td>
+                          <td><div className="d-flex gap-2"><button className="admin-action-btn admin-action-btn--edit" onClick={() => handleEdit(item)}><PencilFill size={13} /></button>
+                          <button className="admin-action-btn admin-action-btn--delete" onClick={() => handleDelete(item.id)}><TrashFill size={13} /></button></div></td></tr>))
+                      }
+                    </tbody>
+                  </table>
+                )}
 
+                {activeTab === "messages" && (
+                  <table className="admin-custom-table">
+                    <thead><tr><th>Nom</th><th>Email</th><th>Sujet</th><th>Message</th><th>Actions</th></tr></thead>
+                    <tbody>
+                      {messages.length === 0 ? <tr><td colSpan="5" className="admin-table-empty">Aucun message</td></tr> : 
+                        messages.map(item => (<tr key={item.id}><td>{item.name}</td><td>{item.email}</td><td>{item.subject}</td><td>{truncateText(item.message)}</td>
+                          <td><button className="admin-action-btn admin-action-btn--delete" onClick={() => handleDelete(item.id)}><TrashFill size={13} /></button></td></tr>))
+                      }
+                    </tbody>
+                  </table>
+                )}
+            </div>
           </div>
         </div>
       </section>

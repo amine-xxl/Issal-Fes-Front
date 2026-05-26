@@ -1,3 +1,9 @@
+/**
+ * Composant Footer
+ * Pied de page global affichant les liens de navigation, les informations de contact
+ * et les réseaux sociaux. Utilisé sur toutes les pages de l'application.
+ */
+
 import React from "react";
 import { Link } from "react-router-dom";
 import {
@@ -14,7 +20,10 @@ import {
 } from "react-bootstrap-icons";
 import "../index.css";
 
-/* Tableau des liens sociaux pour faciliter le .MAP*/
+/**
+ * Configuration des réseaux sociaux
+ * On utilise un tableau d'objets pour générer dynamiquement les icônes (principe DRY : Don't Repeat Yourself).
+ */
 const socialLinks = [
   { icon: <Facebook />, href: "#", label: "Facebook" },
   { icon: <Instagram />, href: "#", label: "Instagram" },
@@ -26,11 +35,11 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    /* Conteneur principal du pied de page */
     <footer className="footer-root bg-body-tertiary p-4 mt-3">
       <div className="container">
         <div className="row text-center text-md-start">
-          {/* ── Colonne 1 : Branding ── */}
+          
+          {/* Section Branding : Logo et Slogan */}
           <div className="col-md-4 mb-4 footer-col-enter" style={{ "--ci": 1 }}>
             <h5 className="fw-bold mb-2">Issal Fes</h5>
             <p className="small text-secondary">
@@ -39,40 +48,30 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* ── Colonne 2 : Liens rapides + À propos ── */}
+          {/* Section Liens Rapides : Navigation interne via React Router Link */}
           <div className="col-md-4 mb-4 footer-col-enter" style={{ "--ci": 2 }}>
             <div className="row">
-              {/* Liens rapides */}
               <div className="col-6">
                 <h6 className="fw-bold mb-2">Quick Links</h6>
                 <ul className="list-unstyled mb-0">
                   <li>
-                    <Link to="/" className="footer-link">
-                      Home
-                    </Link>
+                    <Link to="/" className="footer-link">Home</Link>
                   </li>
                   <li>
-                    <Link to="/Tickets" className="footer-link">
-                      Tickets
-                    </Link>
+                    <Link to="/Tickets" className="footer-link">Tickets</Link>
                   </li>
                   <li>
-                    <Link to="/News" className="footer-link">
-                      News
-                    </Link>
+                    <Link to="/News" className="footer-link">News</Link>
                   </li>
                   <li>
-                    <Link to="/Contact" className="footer-link">
-                      Contact
-                    </Link>
+                    <Link to="/Contact" className="footer-link">Contact</Link>
                   </li>
                 </ul>
               </div>
-
             </div>
           </div>
 
-          {/* ── Colonne 3 : Coordonnées de contact ── */}
+          {/* Section Coordonnées : Adresse, Téléphone et Email */}
           <div className="col-md-4 mb-4 footer-col-enter" style={{ "--ci": 3 }}>
             <h6 className="fw-bold mb-2">Contact</h6>
             <p className="small mb-1">
@@ -92,17 +91,14 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Séparateur horizontal */}
         <hr className="my-3" />
 
-        {/* ── Barre du bas : copyright + icônes sociales ── */}
+        {/* Barre de Copyright et Réseaux Sociaux */}
         <div className="d-flex justify-content-between align-items-center flex-column flex-md-row gap-2">
-          {/* Mention de copyright */}
           <p className="mb-0 small text-secondary">
             &copy; 2026 Issal Fes. Projet Fin Formation.
           </p>
 
-          {/* Icônes des réseaux sociaux — couleur individuelle au survol */}
           <div className="d-flex gap-3">
             {socialLinks.map(({ icon, href, label, color }, i) => (
               <a
@@ -113,7 +109,7 @@ export default function Footer() {
                 aria-label={label}
                 target="_blank"
                 rel="noreferrer"
-                /* Couleur de marque injectée comme variable CSS */
+                // On passe l'index à la variable CSS --si pour l'animation décalée
                 style={{ "--brand-color": color, "--si": i }}
               >
                 {icon}

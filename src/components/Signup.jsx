@@ -12,15 +12,27 @@ import { Spinner } from "react-bootstrap";
 import { useAuth } from "../context/AuthContext";
 import "../index.css";
 
+/**
+ * COMPOSANT : Signup
+ * RÔLE : Gère l'inscription des nouveaux utilisateurs (Clients ou Chauffeurs).
+ * Il communique avec l'API Laravel pour créer un compte et connecte automatiquement
+ * l'utilisateur en cas de succès.
+ */
 export default function Signup() {
-  // Afficher ou cacher les mots de passe
+  /**
+   * ÉTATS (Hooks useState) :
+   * - showPassword, showConfirm : Pour basculer la visibilité des mots de passe.
+   * - error, errors : Pour gérer les messages d'erreur globaux ou par champ (validation).
+   * - loading : Gère l'état visuel du bouton pendant la requête API.
+   * - formData : Regroupe toutes les données du formulaire d'inscription.
+   */
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
   // Erreur générale (serveur inaccessible, etc.)
   const [error, setError] = useState(null);
 
-  // Erreurs de validation par champ renvoyées par Laravel
+  // Erreurs de validation par champ renvoyées par Laravel (ex: email déjà pris)
   const [errors, setErrors] = useState({});
 
   // Spinner pendant l'envoi
@@ -35,15 +47,15 @@ export default function Signup() {
     role: "client",
   });
 
-  const { login } = useAuth(); // Stocke user + token après inscription réussie
+  const { login } = useAuth(); // Hook personnalisé pour stocker user + token
   const navigate = useNavigate();
 
-  // Mise à jour d'un champ texte
+  // Mise à jour d'un champ texte dynamiquement
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
-  // Checkbox "Je suis chauffeur" : coché = chauffeur, décoché = client
+  // Checkbox "Je suis chauffeur" : définit le rôle dans l'état
   function handleRoleChange(e) {
     setFormData({
       ...formData,
@@ -51,7 +63,11 @@ export default function Signup() {
     });
   }
 
-  // Envoi du formulaire à l'API Laravel
+  /**
+   * FONCTION : handleSubmit
+   * Envoie les données à l'API Laravel (/register).
+   * Gère les erreurs de validation 422 et la redirection vers l'accueil en cas de succès.
+   */
   async function handleSubmit(e) {
     e.preventDefault(); // Empêche le rechargement de la page
     setLoading(true);
@@ -59,19 +75,22 @@ export default function Signup() {
     setErrors({});
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json", // Laravel renvoie du JSON et non du HTML
+      const res = await fetch(
+        "http://127.0.0.1:8000/api/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json", // Important pour recevoir les erreurs de validation en JSON
+          },
+          body: JSON.stringify(formData),
         },
-        body: JSON.stringify(formData),
-      });
+      );
 
       const data = await res.json();
 
       if (!res.ok) {
-        // Erreurs de validation Laravel (champ vide, email déjà pris, etc.)
+        // Erreurs de validation Laravel (champ vide, mot de passe trop court, etc.)
         if (data.errors) {
           setErrors(data.errors);
         } else {
@@ -80,11 +99,11 @@ export default function Signup() {
         return;
       }
 
-      // Succès : on connecte l'utilisateur et on redirige
+      // Succès : on enregistre les infos dans le contexte et on redirige
       login(data.user, data.token);
       navigate("/");
     } catch (err) {
-      // Erreur réseau (serveur éteint, pas de connexion...)
+      // Erreur réseau (serveur éteint)
       setError("Serveur inaccessible");
     } finally {
       setLoading(false);
@@ -101,7 +120,7 @@ export default function Signup() {
           <p className="auth-subtitle">Créez votre compte pour commencer</p>
         </div>
 
-        {/* Erreur générale */}
+        {/* Affichage de l'erreur globale */}
         {error && <div className="alert alert-danger py-2 mb-3">{error}</div>}
 
         <form onSubmit={handleSubmit}>
@@ -120,6 +139,7 @@ export default function Signup() {
                 required
               />
             </div>
+            {/* Erreur spécifique au champ 'name' */}
             {errors.name && (
               <small className="text-danger">{errors.name[0]}</small>
             )}
@@ -145,7 +165,7 @@ export default function Signup() {
             )}
           </div>
 
-          {/* Mot de passe */}
+          {/* Mot de passe avec bouton "voir" */}
           <div className="auth-field mb-3">
             <label className="auth-label">Mot de passe</label>
             <div className="auth-input-wrapper">
@@ -199,7 +219,7 @@ export default function Signup() {
             )}
           </div>
 
-          {/* Checkbox rôle chauffeur */}
+          {/* Checkbox rôle chauffeur : change dynamiquement le rôle envoyé au serveur */}
           <div className="form-check mb-4">
             <input
               type="checkbox"
@@ -212,7 +232,7 @@ export default function Signup() {
             </label>
           </div>
 
-          {/* Bouton inscription */}
+          {/* Bouton avec état de chargement */}
           <button
             type="submit"
             className="auth-btn w-100 mb-3"

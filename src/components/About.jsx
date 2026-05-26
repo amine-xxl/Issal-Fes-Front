@@ -1,3 +1,9 @@
+/**
+ * Page "À propos"
+ * Présente le matériel roulant (Bus Yutong), les fonctionnalités de l'application
+ * et l'équipe de développement.
+ */
+
 import React, { useState, useEffect, useRef } from "react";
 import {
   BusFrontFill,
@@ -17,9 +23,14 @@ import {
 import "../index.css";
 
 export default function About() {
+  // État pour gérer la photo actuellement affichée dans la galerie du bus
   const [activePhoto, setActivePhoto] = useState(0);
 
-  // Scroll reveal — ref + state pour chaque section
+  /**
+   * Logique d'animation au scroll (Scroll Reveal) :
+   * On utilise des Refs pour cibler les sections et des états (booféens) 
+   * pour déclencher les classes CSS d'animation (.revealed).
+   */
   const heroRef = useRef(null);
   const busRef = useRef(null);
   const specsRef = useRef(null);
@@ -32,7 +43,7 @@ export default function About() {
   const [appVisible, setAppVisible] = useState(false);
   const [teamVisible, setTeamVisible] = useState(false);
 
-  // Observer pour animer les sections au scroll
+  // IntersectionObserver : Détecte quand un élément devient visible à l'écran
   useEffect(() => {
     const sections = [
       { ref: heroRef, set: setHeroVisible },
@@ -45,22 +56,26 @@ export default function About() {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          // Si la section entre dans le viewport (seuil de 15%)
           if (entry.isIntersecting) {
             const found = sections.find((s) => s.ref.current === entry.target);
-            if (found) found.set(true);
+            if (found) found.set(true); // Active l'animation pour cette section
           }
         });
       },
       { threshold: 0.15 },
     );
 
+    // On attache l'observateur à chaque section
     sections.forEach((s) => {
       if (s.ref.current) observer.observe(s.ref.current);
     });
 
+    // Nettoyage de l'observateur lors du démontage du composant
     return () => observer.disconnect();
   }, []);
 
+  // Données de la galerie
   const photos = [
     { src: "sideview.avif", caption: "Extérieur — vue latérale" },
     { src: "avantpic.webp", caption: "Extérieur — face avant" },

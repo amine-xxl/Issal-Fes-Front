@@ -1,3 +1,9 @@
+/**
+ * Composant Home (Page d'accueil)
+ * C'est la vitrine principale de l'application Issal Fes.
+ * Elle présente les statistiques clés, la flotte de bus, les avis clients et les fonctionnalités.
+ */
+
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -85,24 +91,29 @@ const FEATURES = [
 ];
 
 export default function Home() {
-  // Carte survolée dans la section features (pour l'effet hover)
+  /**
+   * État local (useState)
+   * hoveredCard : Stocke l'index de la carte survolée pour appliquer des effets CSS.
+   */
   const [hoveredCard, setHoveredCard] = useState(null);
 
-  // Refs des sections à animer au scroll
+  /**
+   * Animation au Scroll (Scroll Reveal)
+   * On utilise des Refs pour identifier les sections et déclencher les animations CSS 
+   * via IntersectionObserver quand l'utilisateur fait défiler la page.
+   */
   const statsRef = useRef(null);
   const aboutRef = useRef(null);
   const videoRef = useRef(null);
   const featuresRef = useRef(null);
   const ctaRef = useRef(null);
 
-  // État de visibilité de chaque section
   const [statsVisible, setStatsVisible] = useState(false);
   const [aboutVisible, setAboutVisible] = useState(false);
   const [videoVisible, setVideoVisible] = useState(false);
   const [featuresVisible, setFeaturesVisible] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(false);
 
-  // Un seul IntersectionObserver qui gère toutes les sections
   useEffect(() => {
     const sections = [
       { ref: statsRef, set: setStatsVisible },
@@ -116,7 +127,6 @@ export default function Home() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            // On trouve quelle section vient d'entrer dans l'écran
             const found = sections.find((s) => s.ref.current === entry.target);
             if (found) found.set(true);
           }
@@ -125,24 +135,22 @@ export default function Home() {
       { threshold: 0.15 },
     );
 
-    // On attache l'observer à chaque section
     sections.forEach((s) => {
       if (s.ref.current) observer.observe(s.ref.current);
     });
 
-    return () => observer.disconnect(); // Nettoyage à la désactivation du composant
+    return () => observer.disconnect();
   }, []);
 
   return (
     <div>
-      {/* ── SECTION 1 : HÉRO ── */}
+      {/* ── SECTION 1 : HÉRO (Accroche principale) ── */}
       <section className="home-hero d-flex align-items-center position-relative">
-        {/* Voile semi-transparent par-dessus l'arabesque */}
         <div className="home-hero-overlay" />
 
         <div className="container position-relative" style={{ zIndex: 1 }}>
           <div className="row align-items-center g-5">
-            {/* Texte gauche — animation CSS définie dans index.css */}
+            {/* Texte et Boutons d'appel à l'action */}
             <div className="col-lg-5 hero-text-enter">
               <span className="home-badge mb-3 d-inline-block">
                 <BusFrontFill className="me-2" /> Transport Urbain - ISSAL FES
@@ -170,7 +178,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Image droite avec badges flottants */}
+            {/* Visuel du bus avec indicateurs dynamiques (Live) */}
             <div className="col-lg-7 hero-image-enter">
               <div className="position-relative">
                 <img
@@ -179,13 +187,11 @@ export default function Home() {
                   className="w-100 rounded-4 d-block home-bus-img"
                 />
 
-                {/* Badge vert "En Service" */}
                 <div className="home-live-badge">
                   <span className="home-green-dot" />
                   En Service
                 </div>
 
-                {/* Pilule de départ en bas */}
                 <div className="home-departure-pill">
                   <div className="home-departure-icon">
                     <BusFrontFill />

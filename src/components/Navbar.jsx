@@ -1,3 +1,9 @@
+/**
+ * Composant Navbar (Barre de navigation)
+ * Gère la navigation principale, le basculement entre thèmes clair/sombre, 
+ * et l'affichage des informations utilisateur (Menu Profil).
+ */
+
 import { useRef, useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Collapse } from "bootstrap";
@@ -18,37 +24,46 @@ import {
   TelephoneFill,
   ExclamationCircleFill,
   PersonFill,
-  ShieldFill,
-} from "react-bootstrap-icons";
+  ShieldLockFill,
+  Link45deg,
+  } from "react-bootstrap-icons";
 import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
-  const collapseRef = useRef(null); // Ref sur le menu collapse Bootstrap
-  const togglerRef = useRef(null); // Ref sur le bouton hamburger mobile
-  const dropdownRef = useRef(null); // Ref sur le dropdown account (pour clic extérieur)
-  const navbarRef = useRef(null); // Ref sur toute la navbar (pour fermer le menu mobile)
+  /**
+   * Refs pour manipuler le DOM directement (souvent nécessaire avec Bootstrap ou pour détecter des clics extérieurs)
+   */
+  const collapseRef = useRef(null); // Pour fermer le menu mobile programmatiquement
+  const togglerRef = useRef(null); 
+  const dropdownRef = useRef(null); // Pour fermer le menu compte si on clique ailleurs
+  const navbarRef = useRef(null);
 
   const navigate = useNavigate();
-  const location = useLocation(); // Permet de savoir sur quelle page on est
+  const location = useLocation();
 
-  const { user, logout } = useAuth(); // user = null si non connecté
+  // Extraction des données d'authentification globales
+  const { user, logout } = useAuth(); 
 
-  // ── Thème clair / sombre ──
-  // On lit localStorage au démarrage pour garder le thème entre les sessions
+  /**
+   * Gestion du Thème (Clair / Sombre)
+   * On stocke le choix dans localStorage pour qu'il persiste après un rafraîchissement.
+   */
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
 
   useEffect(() => {
-    // On applique le thème sur <html> et on le sauvegarde
+    // Applique l'attribut data-theme au niveau de l'élément racine <html>
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
 
   function toggleTheme(e) {
-    e.stopPropagation(); // Empêche la fermeture du menu mobile
+    e.stopPropagation(); // Évite de fermer les menus ouverts lors du clic
     setTheme(theme === "light" ? "dark" : "light");
   }
 
-  // ── Dropdown account (ouvert / fermé) ──
+  /**
+   * Gestion du menu Dropdown "Compte"
+   */
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   function toggleDropdown(e) {
@@ -56,7 +71,7 @@ export default function Navbar() {
     setDropdownOpen(!dropdownOpen);
   }
 
-  // Fermer le dropdown quand on clique en dehors
+  // Fermer le dropdown si clic à l'extérieur
   useEffect(() => {
     function handleClickOutside(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -67,10 +82,11 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ── Fermer le menu mobile Bootstrap ──
+  /**
+   * Utilitaire pour fermer le menu Bootstrap mobile (hamburger)
+   */
   function closeMenu() {
     if (collapseRef.current) {
-      // On récupère l'instance Bootstrap existante ou on en crée une
       const instance =
         Collapse.getInstance(collapseRef.current) ||
         new Collapse(collapseRef.current, { toggle: false });
@@ -89,21 +105,14 @@ export default function Navbar() {
       }
     }
     document.addEventListener("mousedown", handleOutsideClick);
-    document.addEventListener("touchstart", handleOutsideClick); // Support mobile
+    document.addEventListener("touchstart", handleOutsideClick); 
     return () => {
       document.removeEventListener("mousedown", handleOutsideClick);
       document.removeEventListener("touchstart", handleOutsideClick);
     };
   }, []);
 
-  // Naviguer vers une page depuis le dropdown et tout fermer
-  function handleDropdownNav(path) {
-    setDropdownOpen(false);
-    closeMenu();
-    navigate(path);
-  }
-
-  // Déconnexion : vider le contexte + rediriger vers l'accueil
+  // Déconnexion de l'utilisateur
   function handleLogout() {
     logout();
     setDropdownOpen(false);
@@ -111,8 +120,10 @@ export default function Navbar() {
     navigate("/");
   }
 
-  // ── Mode minimal : sur Login et Signup on cache les liens de navigation ──
-  // On affiche seulement le logo, le switcher de thème et l'icône compte
+  /**
+   * Mode minimal : On cache la navigation sur les pages de Login et Signup 
+   * pour concentrer l'utilisateur sur l'authentification.
+   */
   const isAuthPage =
     location.pathname === "/Login" || location.pathname === "/Signup";
 
@@ -122,7 +133,6 @@ export default function Navbar() {
       className="navbar navbar-expand-lg bg-body-tertiary fixed-top shadow p-2 navbar-enter"
     >
       <div className="container-fluid">
-        {/* Logo — toujours visible */}
         <Link to="/" className="navbar-brand" onClick={closeMenu}>
           <img src={logo} alt="Issal Fes" width="60" />
         </Link>
@@ -183,15 +193,26 @@ export default function Navbar() {
 
               {/* Dashboard — visible SEULEMENT pour l'admin */}
               {user && user.role === "admin" && (
-                <li className="nav-item nav-item-stagger" style={{ "--i": 3 }}>
-                  <Link
-                    to="/Admin"
-                    className="nav-link mx-2"
-                    onClick={closeMenu}
-                  >
-                    <ShieldFill className="me-1" /> Dashboard
-                  </Link>
-                </li>
+                <>
+                  <li className="nav-item nav-item-stagger" style={{ "--i": 3 }}>
+                    <Link
+                      to="/Admin"
+                      className="nav-link mx-2"
+                      onClick={closeMenu}
+                    >
+                      <ShieldLockFill className="me-1" /> Dashboard
+                    </Link>
+                  </li>
+                  <li className="nav-item nav-item-stagger" style={{ "--i": 3.5 }}>
+                    <Link
+                      to="/Affectation"
+                      className="nav-link mx-2"
+                      onClick={closeMenu}
+                    >
+                      <Link45deg className="me-1" /> Affectation
+                    </Link>
+                  </li>
+                </>
               )}
 
               {/* News */}
@@ -300,7 +321,10 @@ export default function Navbar() {
                     {/* Lien vers les infos du compte */}
                     <button
                       className="profile-dropdown__item"
-                      onClick={() => handleDropdownNav("/UserInfo")}
+                      onClick={() => {
+                        navigate("/UserInfo");
+                        setDropdownOpen(false);
+                      }}
                     >
                       <span className="profile-dropdown__item-icon profile-dropdown__item-icon--info">
                         <PersonFill size={16} />
@@ -345,7 +369,10 @@ export default function Navbar() {
                     {/* Lien login */}
                     <button
                       className="profile-dropdown__item"
-                      onClick={() => handleDropdownNav("/Login")}
+                      onClick={() => {
+                        navigate("/Login");
+                        setDropdownOpen(false);
+                      }}
                     >
                       <span className="profile-dropdown__item-icon profile-dropdown__item-icon--login">
                         <BoxArrowInRight size={16} />
@@ -356,7 +383,10 @@ export default function Navbar() {
                     {/* Lien signup */}
                     <button
                       className="profile-dropdown__item"
-                      onClick={() => handleDropdownNav("/Signup")}
+                      onClick={() => {
+                        navigate("/Signup");
+                        setDropdownOpen(false);
+                      }}
                     >
                       <span className="profile-dropdown__item-icon profile-dropdown__item-icon--signup">
                         <PersonPlusFill size={16} />
