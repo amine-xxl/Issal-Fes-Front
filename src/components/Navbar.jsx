@@ -221,7 +221,7 @@ export default function Navbar() {
                 type="button"
               >
                 {user ? (
-                  <span className="navbar-user-initial">
+                  <span className="navbar-user-initial" style={{ color: "#1a1a1a" }}>
                     {user.name.charAt(0).toUpperCase()}
                   </span>
                 ) : (

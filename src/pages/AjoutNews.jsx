@@ -62,6 +62,7 @@ export default function AjoutNews() {
   const [numero,      setNumero]      = useState("");
   const [depart,      setDepart]      = useState("");
   const [arrivee,     setArrivee]     = useState("");
+  const [prix,        setPrix]        = useState(5.00);
   const [description, setDescription] = useState("");
   const [arretsAller,  setArretsAller]  = useState([""]);
   const [arretsRetour, setArretsRetour] = useState([""]);
@@ -116,6 +117,7 @@ export default function AjoutNews() {
         setNumero(editData.numero || "");
         setDepart(editData.depart || "");
         setArrivee(editData.arrivee || "");
+        setPrix(editData.prix || 5.00);
         setDescription(editData.description || "");
         if (editData.itineraires) {
           const aller  = editData.itineraires.filter((i) => i.direction === "aller").map((i) => i.nom_arret);
@@ -185,7 +187,7 @@ export default function AjoutNews() {
         // FIX: Laravel apiResource attend PUT pour update, on envoie PUT avec JSON
         method = isEditMode ? "PUT" : "POST";
         body   = JSON.stringify({
-          numero, depart, arrivee, description,
+          numero, depart, arrivee, prix, description,
           arrets_aller:  arretsAller.filter(Boolean),
           arrets_retour: arretsRetour.filter(Boolean),
         });
@@ -323,6 +325,10 @@ export default function AjoutNews() {
                       <div className="mb-3">
                         <label className="contact-label">Point d'arrivée</label>
                         <input className="contact-input" value={arrivee} placeholder="Ex: Université" onChange={(e) => setArrivee(e.target.value)} required />
+                      </div>
+                      <div className="mb-3">
+                        <label className="contact-label">Prix du billet (MAD)</label>
+                        <input type="number" step="0.5" min="0" className="contact-input" value={prix} onChange={(e) => setPrix(e.target.value)} required />
                       </div>
 
                       <div className="mb-4">

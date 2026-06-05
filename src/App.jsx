@@ -20,6 +20,7 @@ import Admin from "./pages/Admin";
 import AjoutNews from "./pages/AjoutNews";
 import ProInfos from "./pages/ProInfos";
 import Affectation from "./pages/Affectation";
+import AchatTicket from "./pages/AchatTicket";
 
 /**
  * Composant TopLoadingBar
@@ -48,7 +49,7 @@ export default function App() {
       {/* Système de routage : définit quel composant afficher selon l'URL */}
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/Tickets" />
+        <Route path="/Tickets" element={<AchatTicket />} />
         <Route path="/About" element={<About />} />
         <Route path="/News" element={<News />} />
         <Route path="/Contact" element={<Contact />} />

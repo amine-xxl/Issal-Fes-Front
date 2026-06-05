@@ -54,29 +54,74 @@ export default function Admin() {
     fetchLignes(); fetchActualites(); fetchAlertes(); fetchMessages();
   }, []);
 
-  const makeRequest = async (endpoint, method = "GET", body = null) => {
-    const options = {
-      method,
-      headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: `Bearer ${token}` },
-    };
-    if (body) options.body = JSON.stringify(body);
+  const API_BASE = "http://127.0.0.1:8000/api";
+
+  const fetchLignes = async () => {
     try {
-      const response = await fetch(`${API_URL}${endpoint}`, options);
-      const text = await response.text();
-      return text ? JSON.parse(text) : (method === "GET" ? [] : {});
-    } catch (error) { console.error("Erreur API:", error); }
+      const res = await fetch(`${API_BASE}/lignes`, {
+        headers: { Accept: "application/json" }
+      });
+      const data = await res.json();
+      setLignes(Array.isArray(data) ? data : []);
+    } catch (err) { console.error("Err lignes:", err); }
   };
 
-  const fetchLignes = async () => { const data = await makeRequest("/lignes"); setLignes(Array.isArray(data) ? data : []); };
-  const fetchActualites = async () => { const data = await makeRequest("/actualites"); setActualites(Array.isArray(data) ? data : []); };
-  const fetchAlertes = async () => { const data = await makeRequest("/alertes"); setAlertes(Array.isArray(data) ? data : []); };
-  const fetchMessages = async () => { const data = await makeRequest("/messages"); setMessages(Array.isArray(data) ? data : []); };
+  const fetchActualites = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/actualites`, {
+        headers: { Accept: "application/json" }
+      });
+      const data = await res.json();
+      setActualites(Array.isArray(data) ? data : []);
+    } catch (err) { console.error("Err actualites:", err); }
+  };
+
+  const fetchAlertes = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/alertes`, {
+        headers: { Accept: "application/json" }
+      });
+      const data = await res.json();
+      setAlertes(Array.isArray(data) ? data : []);
+    } catch (err) { console.error("Err alertes:", err); }
+  };
+
+  const fetchMessages = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/messages`, {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      setMessages(Array.isArray(data) ? data : []);
+    } catch (err) { console.error("Err messages:", err); }
+  };
 
   const handleDelete = async (id) => {
     if (!window.confirm("Confirmer la suppression ?")) return;
-    const endpoint = activeTab === "lignes" ? `/lignes/${id}` : activeTab === "actualites" ? `/actualites/${id}` : activeTab === "alertes" ? `/alertes/${id}` : `/messages/${id}`;
-    await makeRequest(endpoint, "DELETE");
-    if (activeTab === "lignes") fetchLignes(); else if (activeTab === "actualites") fetchActualites(); else if (activeTab === "alertes") fetchAlertes(); else fetchMessages();
+    let endpoint = "";
+    if (activeTab === "lignes") endpoint = `/lignes/${id}`;
+    else if (activeTab === "actualites") endpoint = `/actualites/${id}`;
+    else if (activeTab === "alertes") endpoint = `/alertes/${id}`;
+    else endpoint = `/messages/${id}`;
+
+    try {
+      const res = await fetch(`${API_BASE}${endpoint}`, {
+        method: "DELETE",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        if (activeTab === "lignes") fetchLignes();
+        else if (activeTab === "actualites") fetchActualites();
+        else if (activeTab === "alertes") fetchAlertes();
+        else fetchMessages();
+      }
+    } catch (err) { console.error("Err delete:", err); }
   };
 
   const handleEdit = (item) => {
@@ -118,10 +163,10 @@ export default function Admin() {
             <div className="admin-table-wrap reveal-up" style={{ animationDelay: "0.15s" }}>
                 {activeTab === "lignes" && (
                   <table className="admin-custom-table">
-                    <thead><tr><th>Numéro</th><th>Départ</th><th>Arrivée</th><th>Description</th><th>Actions</th></tr></thead>
+                    <thead><tr><th>Numéro</th><th>Départ</th><th>Arrivée</th><th>Prix</th><th>Description</th><th>Actions</th></tr></thead>
                     <tbody>
-                      {lignes.length === 0 ? <tr><td colSpan="5" className="admin-table-empty">Aucune donnée</td></tr> : 
-                        lignes.map(item => (<tr key={item.id}><td>{item.numero}</td><td>{item.depart}</td><td>{item.arrivee}</td><td>{truncateText(item.description)}</td>
+                      {lignes.length === 0 ? <tr><td colSpan="6" className="admin-table-empty">Aucune donnée</td></tr> : 
+                        lignes.map(item => (<tr key={item.id}><td>{item.numero}</td><td>{item.depart}</td><td>{item.arrivee}</td><td>{item.prix} MAD</td><td>{truncateText(item.description)}</td>
                           <td><div className="d-flex gap-2"><button className="admin-action-btn admin-action-btn--edit" onClick={() => handleEdit(item)}><PencilFill size={13} /></button>
                           <button className="admin-action-btn admin-action-btn--delete" onClick={() => handleDelete(item.id)}><TrashFill size={13} /></button></div></td></tr>))
                       }
