@@ -1,9 +1,3 @@
-/**
- * Composant Footer
- * Pied de page global affichant les liens de navigation, les informations de contact
- * et les réseaux sociaux. Utilisé sur toutes les pages de l'application.
- */
-
 import React from "react";
 import { Link } from "react-router-dom";
 import {

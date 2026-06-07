@@ -14,13 +14,6 @@ import {
 } from "react-bootstrap-icons";
 import "../index.css";
 
-/**
- * COMPOSANT : News
- * RÔLE : Affiche les actualités du réseau Issal Fes et la liste des lignes de bus.
- * Ce composant permet aux usagers de s'informer sur les nouveautés, les perturbations
- * en temps réel et de consulter le détail technique de chaque ligne (itinéraire).
- */
-
 // URL de base de l'API Laravel
 const API_URL = "http://127.0.0.1:8000/api";
 
@@ -75,7 +68,7 @@ export default function News() {
   const [bodyVisible, setBodyVisible] = useState(false);
 
   /**
-   * EFFET : Scroll Reveal
+   * Scroll Reveal
    * Utilise l'Intersection Observer pour déclencher des animations CSS
    * dès que les sections entrent dans le champ de vision de l'utilisateur.
    */
@@ -105,7 +98,7 @@ export default function News() {
   }, []);
 
   /**
-   * EFFET : Récupération des données (API)
+   * Récupération des données (API)
    * Au chargement du composant, on effectue 3 requêtes asynchrones en parallèle
    * via Promise.all pour optimiser le temps d'attente.
    */
@@ -150,7 +143,7 @@ export default function News() {
 
   return (
     <div className="news-page">
-      {/* ── HERO ── */}
+      {/*  HERO  */}
       <section
         ref={heroRef}
         className={`contact-hero d-flex align-items-center justify-content-center position-relative scroll-reveal ${heroVisible ? "revealed" : ""}`}
@@ -192,7 +185,7 @@ export default function News() {
         </div>
       </section>
 
-      {/* ── CORPS ── */}
+      {/*  CORPS  */}
       <section className="contact-body py-5">
         <div
           ref={bodyRef}
@@ -251,7 +244,7 @@ export default function News() {
                 </div>
               ))}
 
-          {/* ── ONGLET ACTUALITÉS ── */}
+          {/*  ONGLET ACTUALITÉS  */}
           {!loading && activeTab === "actualites" && (
             <>
               {featured && (
@@ -277,11 +270,11 @@ export default function News() {
                       </div>
                     )}
 
-                    <div
+                    <div // Si une image existe, on prend 7 colonnes, sinon 12 pour le texte car le texte doit occuper toute la largeur
                       className={
-                        getImageUrl(featured.image)
-                          ? "col-lg-7 d-flex flex-column justify-content-center p-4"
-                          : "col-12 d-flex flex-column justify-content-center p-4"
+                        getImageUrl(featured.image) // Si une image existe, on prend 7 colonnes, sinon 12 pour le texte
+                          ? "col-lg-7 d-flex flex-column justify-content-center p-4" // Avec image : 7 colonnes pour le texte
+                          : "col-12 d-flex flex-column justify-content-center p-4" // Sans image : 12 colonnes pour le texte
                       }
                     >
                       <div className="d-flex align-items-center gap-2 mb-3">
@@ -367,7 +360,7 @@ export default function News() {
             </>
           )}
 
-          {/* ── ONGLET LIGNES ── */}
+          {/*  ONGLET LIGNES  */}
           {!loading && activeTab === "lignes" && (
             <div className="row g-4">
               {lignes.length === 0 ? (
@@ -447,8 +440,7 @@ export default function News() {
             </div>
           )}
 
-          {/* 
-            ── MODALE POUR L'ITINÉRAIRE DÉTAILLÉ ──
+          {/*
             FONCTIONNALITÉ : Affiche visuellement les arrêts de bus pour les trajets "Aller" et "Retour".
             Le défilement est horizontal pour simuler une ligne de temps/parcours.
           */}

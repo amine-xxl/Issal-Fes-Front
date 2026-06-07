@@ -18,18 +18,12 @@ import {
   TrashFill,
   BoxArrowRight,
 } from "react-bootstrap-icons";
+import "../index.css";
 
-/**
- * COMPOSANT : UserInfo
- * RÔLE : Espace personnel de l'utilisateur permettant de gérer son profil.
- * Fonctionnalités : Modification du nom, changement de mot de passe,
- * bascule du thème (Clair/Sombre) et gestion des abonnements email.
- */
-
-// ── URL de l'API Laravel ──
+//  URL de l'API Laravel 
 const API_URL = "http://127.0.0.1:8000/api";
 
-// ── Formate une date ISO en français (ex: "12 mai 2026") ──
+//  Formate une date ISO en français (ex: "12 mai 2026") 
 function formatDate(iso) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("fr-FR", {
@@ -42,7 +36,7 @@ function formatDate(iso) {
 export default function UserInfo() {
   const navigate = useNavigate();
 
-  // ── Contexte global : contient les infos de l'user connecté + fonctions de login/logout ──
+  //  Contexte global : contient les infos de l'user connecté + fonctions de login/logout 
   const { user, token, login, logout } = useAuth();
 
   /**
@@ -61,7 +55,7 @@ export default function UserInfo() {
     setTheme(theme === "light" ? "dark" : "light");
   }
 
-  // ── Scroll Reveal : Animations au défilement ──
+  //  Scroll Reveal : Animations au défilement 
   const headerRef = useRef(null);
   const card1Ref = useRef(null);
   const card2Ref = useRef(null);
@@ -105,7 +99,7 @@ export default function UserInfo() {
     return () => observer.disconnect();
   }, []);
 
-  // ── Section 1 : Informations personnelles (Update Nom) ──
+  //  Section 1 : Informations personnelles (Update Nom) 
   const [name, setName] = useState(user?.name || "");
   const [infoStatus, setInfoStatus] = useState(null); // null | "loading" | "success" | "error"
   const [infoError, setInfoError] = useState("");
@@ -148,7 +142,7 @@ export default function UserInfo() {
     }
   }
 
-  // ── Section 2 : Sécurité (Update Mot de passe) ──
+  //  Section 2 : Sécurité (Update Mot de passe) 
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -176,7 +170,7 @@ export default function UserInfo() {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, // Token obligatoire pour l'API -- Laravel Sanctum (middleware auth:sanctum) // Bear token envoyé dans l'en-tête Authorization pour authentifier la requête auprès de l'API Laravel protégée par Sanctum
         },
         body: JSON.stringify({
           current_password: oldPassword,
@@ -203,7 +197,7 @@ export default function UserInfo() {
     }
   }
 
-  // ── Section 3 : Notifications (Simulées via localStorage) ──
+  //  Section 3 : Notifications (Simulées via localStorage) 
   const [subscribed, setSubscribed] = useState(
     localStorage.getItem("subscribed") === "true",
   );
@@ -238,9 +232,9 @@ export default function UserInfo() {
 
   return (
     <div className="container pb-5" style={{ paddingTop: 110, maxWidth: 720 }}>
-      {/* ══════════════════════════════════════════
+      {/*
           EN-TÊTE : Identité visuelle de l'utilisateur
-      ══════════════════════════════════════════ */}
+       */}
       <div 
         ref={headerRef} 
         className={`text-center mb-5 scroll-reveal ${headerVisible ? "revealed" : ""}`}
@@ -257,10 +251,10 @@ export default function UserInfo() {
         </div>
       </div>
 
-      {/* ══════════════════════════════════════════
+      {/* 
           SECTION 1 — PARAMÈTRES DU COMPTE
           Modification du nom et de la sécurité.
-      ══════════════════════════════════════════ */}
+*/}
       <div 
         ref={card1Ref} 
         className={`contact-form-card mb-4 position-relative scroll-reveal ${card1Visible ? "revealed" : ""}`} 
@@ -402,10 +396,10 @@ export default function UserInfo() {
         </form>
       </div>
 
-      {/* ══════════════════════════════════════════
+      {/* 
           SECTION 2 — PERSONNALISATION
           Gestion du mode sombre.
-      ══════════════════════════════════════════ */}
+       */}
       <div 
         ref={card2Ref}
         className={`contact-form-card mb-4 scroll-reveal ${card2Visible ? "revealed" : ""}`}
@@ -433,9 +427,9 @@ export default function UserInfo() {
         </div>
       </div>
 
-      {/* ══════════════════════════════════════════
+      {/* 
           SECTION 3 — PRÉFÉRENCES DE CONTACT
-      ══════════════════════════════════════════ */}
+       */}
       <div 
         ref={card3Ref}
         className={`contact-form-card mb-4 scroll-reveal ${card3Visible ? "revealed" : ""}`}
@@ -449,7 +443,7 @@ export default function UserInfo() {
           <div>
             <p className="mb-0 fw-semibold" style={{ fontSize: 14 }}>Abonnement aux actualités</p>
             <small className="text-secondary" style={{ fontSize: 12 }}>
-              Recevez par email les changements d'itinéraires et les promos.
+              Recevez par email les changements d'itinéraires et les promos. (non configuré)
             </small>
           </div>
           <button
@@ -464,15 +458,14 @@ export default function UserInfo() {
         {subscribed && (
           <div className="d-flex align-items-center gap-2 mt-3" style={{ color: "var(--brand)", fontSize: 13 }}>
             <CheckCircleFill size={13} />
-            <span>Vous recevrez nos prochaines actualités par email.</span>
+            <span>Vous recevrez nos prochaines actualités par email. </span>
           </div>
         )}
       </div>
 
-      {/* ══════════════════════════════════════════
+      {/* 
           SECTION 4 — STATUT DU COMPTE
-          Données en lecture seule issues de la BDD.
-      ══════════════════════════════════════════ */}
+       */}
       <div 
         ref={card4Ref}
         className={`contact-form-card scroll-reveal ${card4Visible ? "revealed" : ""}`}
@@ -504,9 +497,9 @@ export default function UserInfo() {
         </div>
       </div>
 
-      {/* ══════════════════════════════════════════
+      {/* 
           SECTION 5 — ZONE DE DÉCONNEXION
-      ══════════════════════════════════════════ */}
+       */}
       <div 
         ref={dangerRef}
         className={`contact-form-card mt-4 scroll-reveal ${dangerVisible ? "revealed" : ""}`}

@@ -15,15 +15,9 @@ import {
   GeoAltFill,
   CurrencyDollar,
   Link45deg,
-  // FIX: Truck n'existe pas dans react-bootstrap-icons, remplacé par TruckFlatbed
   TruckFlatbed,
 } from "react-bootstrap-icons";
 import "../index.css";
-
-/**
- * PAGE : AjoutNews
- * Formulaire polyvalent pour gérer Lignes, Actualités, Alertes, Affectations.
- */
 
 function useScrollReveal(threshold = 0.15) {
   const ref = useRef(null);
@@ -42,6 +36,7 @@ function useScrollReveal(threshold = 0.15) {
 const API_URL = "http://127.0.0.1:8000/api/admin";
 
 export default function AjoutNews() {
+  // Formulaire de création/modification d'une actualité ou d'une ligne de bus.
   const { user, token } = useAuth();
   const navigate  = useNavigate();
   const location  = useLocation();
@@ -49,37 +44,37 @@ export default function AjoutNews() {
   const [heroRef, heroVisible] = useScrollReveal(0.1);
   const [formRef, formVisible] = useScrollReveal(0.1);
 
-  const isEditMode = location.state?.editMode  || false;
-  const editId     = location.state?.editId    || null;
-  const editData   = location.state?.editData  || null;
-  const [activeTab, setActiveTab] = useState(location.state?.activeTab || "lignes");
+  const isEditMode = location.state?.editMode  || false; // true si on modifie une entité existante, false pour une création
+  const editId     = location.state?.editId    || null; // ID de l'entité à modifier (ligne, actualité, alerte ou chauffeur)
+  const editData   = location.state?.editData  || null; // Données pré-remplies pour l'édition (ex: titre et contenu d'une actualité)
+  const [activeTab, setActiveTab] = useState(location.state?.activeTab || "lignes"); // "lignes", "actualites", "alertes" ou "chauffeurs" (défaut : "lignes")
 
-  const [lignes,    setLignes]    = useState([]);
-  const [chauffeurs, setChauffeurs] = useState([]);
+  const [lignes,    setLignes]    = useState([]); // pour les dropdowns de sélection dans les alertes et les affectations
+  const [chauffeurs, setChauffeurs] = useState([]); // pour le dropdown de sélection des chauffeurs dans l'affectation
   const [status, setStatus] = useState("idle"); // idle | loading | success | error
 
-  // ── États Lignes ──
+  //  États Lignes 
   const [numero,      setNumero]      = useState("");
   const [depart,      setDepart]      = useState("");
   const [arrivee,     setArrivee]     = useState("");
-  const [prix,        setPrix]        = useState(5.00);
+  const [prix,        setPrix]        = useState(5.00); // Prix par défaut
   const [description, setDescription] = useState("");
   const [arretsAller,  setArretsAller]  = useState([""]);
   const [arretsRetour, setArretsRetour] = useState([""]);
 
-  // ── États Actualités ──
+  //  États Actualités 
   const [titre,        setTitre]        = useState("");
   const [imageFile,    setImageFile]    = useState(null);
   const [imagePreview, setImagePreview] = useState("");
   const [contenu,      setContenu]      = useState("");
 
-  // ── États Alertes ──
+  //  États Alertes 
   const [message, setMessage] = useState("");
   const [type,    setType]    = useState("info");
   const [statut,  setStatut]  = useState("active");
   const [ligneId, setLigneId] = useState("");
 
-  // ── États Chauffeurs ──
+  //  États Chauffeurs 
   const [chfUserId,   setChfUserId]   = useState("");
   const [chfLigneId,  setChfLigneId]  = useState("");
   const [chfBusNum,   setChfBusNum]   = useState("");
@@ -92,7 +87,7 @@ export default function AjoutNews() {
     if (!user || user.role !== "admin") navigate("/");
   }, [user, navigate]);
 
-  // FIX: fetch lignes depuis l'endpoint public (pas admin)
+  // fetch lignes depuis le lien local public pour pré-remplir les dropdowns de sélection dans les formulaires d'alertes et d'affectation
   useEffect(() => {
     fetch("http://127.0.0.1:8000/api/lignes", {
       headers: { Accept: "application/json" },
@@ -143,7 +138,7 @@ export default function AjoutNews() {
       } else if (activeTab === "chauffeurs") {
         setChfUserId(editData.id);
         if (editData.pro_info) {
-          setChfLigneId(editData.pro_info.ligne_id  || "");
+          setChfLigneId(editData.pro_info.ligne_id   || "");
           setChfBusNum(editData.pro_info.numero_bus  || "");
           setChfModele(editData.pro_info.modele      || "");
           setChfCapacite(editData.pro_info.capacite  || 15);
@@ -184,7 +179,7 @@ export default function AjoutNews() {
 
       if (activeTab === "lignes") {
         endpoint = isEditMode ? `/lignes/${editId}` : "/lignes";
-        // FIX: Laravel apiResource attend PUT pour update, on envoie PUT avec JSON
+        // Laravel apiResource attend PUT pour update, on envoie PUT avec JSON
         method = isEditMode ? "PUT" : "POST";
         body   = JSON.stringify({
           numero, depart, arrivee, prix, description,
@@ -193,16 +188,15 @@ export default function AjoutNews() {
         });
 
       } else if (activeTab === "actualites") {
-        // FIX: Pour les actualités, on utilise POST avec _method=PUT (route api.php accepte POST pour update)
+        // Pour les actualités, on utilise POST avec _method=PUT (route api.php accepte POST pour update)
         endpoint    = isEditMode ? `/actualites/${editId}` : "/actualites";
         method      = "POST";
-        isMultipart = true;
+        isMultipart = true; // Envoi multipart/form-data pour gérer l'upload d'image
         const fd    = new FormData();
         fd.append("titre",   titre);
         fd.append("contenu", contenu);
         if (imageFile) fd.append("image", imageFile);
-        // _method non nécessaire car la route api.php accepte directement POST pour update
-        body = fd;
+        body = fd; // body doit être un FormData pour que fetch gère correctement les en-têtes et le format de données car on envoie un fichier (image)
 
       } else if (activeTab === "alertes") {
         endpoint = isEditMode ? `/alertes/${editId}` : "/alertes";
@@ -210,7 +204,7 @@ export default function AjoutNews() {
         body     = JSON.stringify({ ligne_id: ligneId, type, message, statut });
 
       } else if (activeTab === "chauffeurs") {
-        // FIX: toujours POST pour updateOrCreate côté Laravel
+        // toujours POST pour updateOrCreate côté Laravel
         endpoint = "/chauffeurs";
         method   = "POST";
         body     = JSON.stringify({
@@ -232,7 +226,7 @@ export default function AjoutNews() {
 
       const res = await fetch(`${API_URL}${endpoint}`, { method, headers, body });
 
-      if (res.ok) {
+      if (res.ok) { // Succès de l'opération (ligne créée/modifiée, actualité créée/modifiée, etc.)
         setStatus("success");
       } else {
         const errData = await res.json().catch(() => ({}));
@@ -245,9 +239,9 @@ export default function AjoutNews() {
     }
   };
 
-  const getReturnPath = () => (activeTab === "chauffeurs" ? "/Affectation" : "/Admin");
+  const getReturnPath = () => (activeTab === "chauffeurs" ? "/Affectation" : "/Admin"); // Chemin de retour après succès ou clic sur "Retour" (redirection vers la page d'affectation pour les chauffeurs, sinon vers la page d'administration)
 
-  const getHeroText = () => {
+  const getHeroText = () => { // Texte du hero en fonction de l'onglet actif et du mode (création ou édition)
     if (activeTab === "chauffeurs") return "Affectation Chauffeur";
     const labels = { lignes: "une Ligne", actualites: "une Actualité", alertes: "une Alerte" };
     return isEditMode ? `Modifier ${labels[activeTab]}` : `Ajouter ${labels[activeTab]}`;
@@ -311,7 +305,7 @@ export default function AjoutNews() {
               ) : (
                 <form onSubmit={handleSubmit}>
 
-                  {/* ── LIGNES ── */}
+                  {/*  LIGNES  */}
                   {activeTab === "lignes" && (
                     <>
                       <div className="mb-3">
@@ -410,7 +404,7 @@ export default function AjoutNews() {
                     </>
                   )}
 
-                  {/* ── ACTUALITÉS ── */}
+                  {/*  ACTUALITÉS  */}
                   {activeTab === "actualites" && (
                     <>
                       <div className="mb-3">
@@ -446,7 +440,7 @@ export default function AjoutNews() {
                     </>
                   )}
 
-                  {/* ── ALERTES ── */}
+                  {/*  ALERTES  */}
                   {activeTab === "alertes" && (
                     <>
                       <div className="mb-3">
@@ -482,7 +476,7 @@ export default function AjoutNews() {
                     </>
                   )}
 
-                  {/* ── CHAUFFEURS ── */}
+                  {/*  CHAUFFEURS  */}
                   {activeTab === "chauffeurs" && (
                     <>
                       <div className="mb-4 p-3 admin-form-header rounded-3 d-flex align-items-center gap-3">
@@ -534,7 +528,6 @@ export default function AjoutNews() {
                         </div>
 
                         <div className="col-md-6">
-                          {/* FIX: TruckFlatbed remplace Truck */}
                           <label className="contact-label">
                             <TruckFlatbed className="me-1" /> Numéro du bus
                           </label>

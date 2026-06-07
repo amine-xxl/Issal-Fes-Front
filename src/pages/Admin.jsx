@@ -14,13 +14,6 @@ import {
 } from "react-bootstrap-icons";
 import "../index.css";
 
-/**
- * PAGE : Admin
- * RÔLE : Tableau de bord central pour l'administration du réseau.
- * Permet de gérer (CRUD) les lignes de bus, les actualités et les alertes réseau.
- * L'accès est restreint aux utilisateurs ayant le rôle 'admin'.
- */
-
 function useScrollReveal(threshold = 0.15) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -40,7 +33,7 @@ export default function Admin() {
   const [heroRef, heroVisible] = useScrollReveal(0.1);
   const [tableRef, tableVisible] = useScrollReveal(0.1);
 
-  const [activeTab, setActiveTab] = useState("lignes");
+  const [activeTab, setActiveTab] = useState("lignes"); // les onglets : "lignes", "actualites", "alertes", "messages"
   const [lignes, setLignes] = useState([]);
   const [actualites, setActualites] = useState([]);
   const [alertes, setAlertes] = useState([]);
@@ -88,7 +81,7 @@ export default function Admin() {
 
   const fetchMessages = async () => {
     try {
-      const res = await fetch(`${API_BASE}/messages`, {
+      const res = await fetch(`${API_URL}/messages`, {
         headers: {
           Accept: "application/json",
           Authorization: `Bearer ${token}`
@@ -108,7 +101,7 @@ export default function Admin() {
     else endpoint = `/messages/${id}`;
 
     try {
-      const res = await fetch(`${API_BASE}${endpoint}`, {
+      const res = await fetch(`${API_URL}${endpoint}`, {
         method: "DELETE",
         headers: {
           Accept: "application/json",
@@ -147,7 +140,7 @@ export default function Admin() {
       <section className="contact-body py-5">
         <div className="container py-3">
           <div ref={tableRef} className={`scroll-reveal ${tableVisible ? "revealed" : ""}`}>
-            <div className="admin-tabs reveal-up">
+             <div className="admin-tabs reveal-up"> {/* Onglets de navigation */}
               <button className={`admin-tab-btn ${activeTab === "lignes" ? "admin-tab-btn--active" : ""}`} onClick={() => setActiveTab("lignes")}><BusFrontFill size={16} /> <span>Lignes</span></button>
               <button className={`admin-tab-btn ${activeTab === "actualites" ? "admin-tab-btn--active" : ""}`} onClick={() => setActiveTab("actualites")}><Newspaper size={16} /> <span>Actualités</span></button>
               <button className={`admin-tab-btn ${activeTab === "alertes" ? "admin-tab-btn--active" : ""}`} onClick={() => setActiveTab("alertes")}><ExclamationTriangleFill size={16} /> <span>Alertes</span></button>

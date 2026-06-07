@@ -1,7 +1,3 @@
-/**
- * Composant Navbar
- */
-
 import { useRef, useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Collapse } from "bootstrap";
@@ -22,7 +18,6 @@ import {
   TelephoneFill,
   ExclamationCircleFill,
   PersonFill,
-  // FIX: ShieldLockFill n'existe pas dans react-bootstrap-icons, remplacé par ShieldFillCheck
   ShieldFillCheck,
   Link45deg,
 } from "react-bootstrap-icons";
@@ -38,7 +33,7 @@ export default function Navbar() {
   const location  = useLocation();
   const { user, logout } = useAuth();
 
-  // ── Thème ──
+  //  Thème 
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
 
   useEffect(() => {
@@ -51,7 +46,7 @@ export default function Navbar() {
     setTheme(theme === "light" ? "dark" : "light");
   }
 
-  // ── Dropdown compte ──
+  //  Dropdown compte 
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   function toggleDropdown(e) {
@@ -69,7 +64,7 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ── Fermeture menu mobile ──
+  //  Fermeture menu mobile après clic ailleurs 
   function closeMenu() {
     if (collapseRef.current) {
       const instance =
@@ -96,7 +91,7 @@ export default function Navbar() {
     };
   }, []);
 
-  // FIX: ferme le menu à chaque changement de route
+  // ferme le menu à chaque changement de route
   useEffect(() => {
     closeMenu();
     setDropdownOpen(false);
@@ -168,7 +163,6 @@ export default function Navbar() {
                 <>
                   <li className="nav-item nav-item-stagger" style={{ "--i": 3 }}>
                     <Link to="/Admin" className="nav-link mx-2" onClick={closeMenu}>
-                      {/* FIX: ShieldFillCheck remplace ShieldLockFill */}
                       <ShieldFillCheck className="me-1" /> Dashboard
                     </Link>
                   </li>

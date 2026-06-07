@@ -12,15 +12,8 @@ import { Spinner } from "react-bootstrap";
 import { useAuth } from "../context/AuthContext";
 import "../index.css";
 
-/**
- * COMPOSANT : Signup
- * RÔLE : Gère l'inscription des nouveaux utilisateurs (Clients ou Chauffeurs).
- * Il communique avec l'API Laravel pour créer un compte et connecte automatiquement
- * l'utilisateur en cas de succès.
- */
 export default function Signup() {
   /**
-   * ÉTATS (Hooks useState) :
    * - showPassword, showConfirm : Pour basculer la visibilité des mots de passe.
    * - error, errors : Pour gérer les messages d'erreur globaux ou par champ (validation).
    * - loading : Gère l'état visuel du bouton pendant la requête API.
@@ -64,7 +57,7 @@ export default function Signup() {
   }
 
   /**
-   * FONCTION : handleSubmit
+   * handleSubmit
    * Envoie les données à l'API Laravel (/register).
    * Gère les erreurs de validation 422 et la redirection vers l'accueil en cas de succès.
    */

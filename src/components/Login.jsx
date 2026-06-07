@@ -1,9 +1,3 @@
-/**
- * Composant Login
- * Interface d'authentification pour les utilisateurs existants.
- * Gère l'envoi des identifiants au backend et la mise à jour du contexte d'authentification global.
- */
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {

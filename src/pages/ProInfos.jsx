@@ -26,7 +26,7 @@ export default function ProInfos() {
   const [error, setError] = useState(null);
   const [showSuccessToast, setShowSuccessToast] = useState(location.state?.justAssigned || false);
 
-  // ── Refs pour les animations scroll reveal ──
+  //  Refs pour les animations scroll reveal 
   const heroRef = useRef(null);
   const infoRef = useRef(null);
   const timelineRef = useRef(null);
@@ -37,7 +37,7 @@ export default function ProInfos() {
   const [timelineVisible, setTimelineVisible] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
 
-  // Sécurité : Redirige si non-chauffeur
+  // Redirige si non-chauffeur
   useEffect(() => {
     if (!token) {
       navigate("/Login");
@@ -72,13 +72,13 @@ export default function ProInfos() {
       if (s.ref.current) observer.observe(s.ref.current);
     });
 
-    // Fallback : Si après 1.5s rien n'est visible, on force l'affichage (évite la page blanche)
+    // Si après 2s rien n'est visible, on force l'affichage (évite la page blanche)
     const timeout = setTimeout(() => {
       setHeroVisible(true);
       setInfoVisible(true);
       setTimelineVisible(true);
       setAlertVisible(true);
-    }, 1500);
+    }, 2000);
 
     // Auto-hide success toast after 5s
     if (showSuccessToast) {
@@ -93,7 +93,7 @@ export default function ProInfos() {
   }, [showSuccessToast]);
 
   /**
-   * EFFET : Récupération des données professionnelles
+   * Récupération des données professionnelles
    */
   useEffect(() => {
     async function fetchProInfo() {
@@ -136,7 +136,7 @@ export default function ProInfos() {
     );
   }
 
-  // ── CAS : AUCUNE DONNÉE (Error ou 404) ──
+  // AUCUNE DONNÉE (Error ou 404)
   if (error || !data) {
     return (
       <div className="pro-infos-page">
@@ -162,7 +162,7 @@ export default function ProInfos() {
 
   return (
     <div className="pro-infos-page">
-      {/* ── TOAST DE SUCCÈS ── */}
+      {/*  TOAST DE SUCCÈS  */}
       {showSuccessToast && (
         <div className="auth-toast d-flex align-items-center gap-3" style={{ position: 'fixed', top: '90px', right: '20px', zIndex: 10000 }}>
             <CheckCircleFill className="text-success" size={24} />
@@ -174,7 +174,7 @@ export default function ProInfos() {
         </div>
       )}
 
-      {/* ── HERO ── */}
+      {/*  HERO  */}
       <section
         ref={heroRef}
         className={`contact-hero d-flex align-items-center justify-content-center position-relative scroll-reveal ${heroVisible ? "revealed" : ""}`}
@@ -200,12 +200,12 @@ export default function ProInfos() {
         </div>
       </section>
 
-      {/* ── BODY ── */}
+      {/*  BODY  */}
       <section className="py-5">
         <div className="container py-3">
           <div className="row g-4">
             
-            {/* ── COLONNE GAUCHE : Bus & Ligne ── */}
+            {/*  COLONNE GAUCHE : Bus & Ligne  */}
             <div className="col-lg-5">
               <div 
                 ref={infoRef}
@@ -235,7 +235,7 @@ export default function ProInfos() {
                   </p>
                 </div>
 
-                {/* Image du bus (placeholder local) */}
+                {/* Image du bus (placeholder local) si aucune image n'est disponible pour eviter l'image crash par défaut */}
                 <div className="bus-image-preview rounded-4 overflow-hidden shadow-sm">
                   <img 
                     src="/busfes1.webp" 
@@ -247,7 +247,7 @@ export default function ProInfos() {
                 </div>
               </div>
 
-              {/* ── Section Alertes ── */}
+              {/*  Section Alertes  */}
               <div 
                 ref={alertRef}
                 className={`contact-form-card scroll-reveal ${alertVisible ? "revealed" : ""}`}
@@ -281,7 +281,7 @@ export default function ProInfos() {
               </div>
             </div>
 
-            {/* ── COLONNE DROITE : Timeline Itinéraire ── */}
+            {/*  COLONNE DROITE : Timeline Itinéraire  */}
             <div className="col-lg-7">
               <div 
                 ref={timelineRef}

@@ -1,9 +1,3 @@
-/**
- * Composant Contact
- * Permet aux utilisateurs d'envoyer des messages, suggestions ou réclamations.
- * Gère la validation des champs via le backend Laravel et affiche des retours visuels.
- */
-
 import React, { useState, useEffect, useRef } from "react";
 import {
   EnvelopeFill,
@@ -134,7 +128,7 @@ export default function Contact() {
           setStatus("success");
         } else if (res.status === 422 && data?.errors) {
           // Erreur de validation (ex: email invalide, champ manquant) renvoyée par Laravel
-          setErrors(data.errors);
+          setErrors(data.errors); // On affiche les erreurs spécifiques à chaque champ
           setStatus(null); // On repasse en mode édition pour corriger les erreurs
         } else {
           setStatus("error");
@@ -161,7 +155,7 @@ export default function Contact() {
 
   return (
     <div className="contact-page">
-      {/* ── HERO ── */}
+      {/*  HERO  */}
       <section
         ref={heroRef}
         className={`contact-hero d-flex align-items-center justify-content-center position-relative scroll-reveal ${heroVisible ? "revealed" : ""}`}
@@ -204,11 +198,11 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* ── BODY : Formulaire + Infos ── */}
+      {/*  BODY : Formulaire + Infos  */}
       <section className="contact-body py-5">
         <div className="container py-3">
           <div className="row g-5 align-items-start">
-            {/* ── COLONNE GAUCHE : Formulaire ── */}
+            {/*  COLONNE GAUCHE : Formulaire  */}
             <div
               ref={formRef}
               className={`col-lg-7 scroll-reveal ${formVisible ? "revealed" : ""}`} // On ajoute la classe "revealed" pour déclencher l'animation CSS quand la section devient visible
@@ -393,7 +387,8 @@ export default function Contact() {
                           </span>
                           <span className="contact-subscribe-desc">
                             Recevez les nouvelles lignes, horaires et offres
-                            directement par email.
+                            directement par email. (Envoi des emails non
+                            configuré manque de temps)
                           </span>
                         </div>
                       </label>
@@ -421,7 +416,7 @@ export default function Contact() {
               </div>
             </div>
 
-            {/* ── COLONNE DROITE : Informations de contact ── */}
+            {/*  COLONNE DROITE : Informations de contact  */}
             <div
               ref={infoRef}
               className={`col-lg-5 scroll-reveal ${infoVisible ? "revealed" : ""}`}

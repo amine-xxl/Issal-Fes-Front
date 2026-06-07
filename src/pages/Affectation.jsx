@@ -9,12 +9,6 @@ import {
 } from "react-bootstrap-icons";
 import "../index.css";
 
-/**
- * PAGE : Affectation
- * RÔLE : Gestion des affectations chauffeurs (Lignes & Bus).
- * Accessible uniquement aux administrateurs.
- */
-
 function useScrollReveal(threshold = 0.15) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -75,7 +69,7 @@ export default function Affectation() {
 
   return (
     <div className="admin-page">
-      {/* ── HERO ── */}
+      {/*  HERO  */}
       <section ref={heroRef} className={`contact-hero d-flex align-items-center justify-content-center position-relative scroll-reveal ${heroVisible ? "revealed" : ""}`}>
         <div className="contact-hero-overlay" />
         <div className="container position-relative text-center" style={{ zIndex: 1 }}>
@@ -90,7 +84,7 @@ export default function Affectation() {
         </div>
       </section>
 
-      {/* ── BODY ── */}
+      {/*  BODY  */}
       <section className="contact-body py-5">
         <div className="container py-3">
           <div ref={tableRef} className={`scroll-reveal ${tableVisible ? "revealed" : ""}`}>
@@ -121,20 +115,20 @@ export default function Affectation() {
                   <tbody>
                     {chauffeurs.length === 0 ? (
                       <tr><td colSpan="5" className="admin-table-empty">Aucun chauffeur trouvé</td></tr>
-                    ) : (
+                    ) : ( // Affichage des chauffeurs et de leurs affectations
                       chauffeurs.map((item) => (
                         <tr key={item.id}>
                           <td className="fw-bold">{item.name}</td>
                           <td style={{ fontSize: 12 }}>{item.email}</td>
                           <td>
-                            {item.pro_info ? (
+                            {item.pro_info ? ( // Affichage de la ligne assignée, s'il existe
                                 <span className="badge bg-dark">Ligne {item.pro_info.ligne?.numero || item.pro_info.ligne_id}</span>
                             ) : (
                                 <span className="text-danger italic">Non assigné</span>
                             )}
                           </td>
                           <td>
-                             {item.pro_info ? (
+                             {item.pro_info ? ( // Affichage du bus assigné, s'il existe
                                  <div className="d-flex flex-column">
                                      <span className="fw-bold" style={{ color: "var(--brand-dark)" }}>{item.pro_info.numero_bus}</span>
                                      <small className="text-muted" style={{ fontSize: 10 }}>{item.pro_info.modele}</small>

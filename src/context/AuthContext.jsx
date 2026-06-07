@@ -30,7 +30,7 @@ export function AuthProvider({ children }) {
   }
 
   function logout() {
-    // FIX: on appelle l'API pour révoquer le token côté serveur (bonne pratique Sanctum)
+    // on appelle l'API pour révoquer le token côté serveur (bonne pratique Sanctum)
     if (token) {
       fetch("http://127.0.0.1:8000/api/logout", {
         method: "POST",

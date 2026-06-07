@@ -1,8 +1,3 @@
-/**
- * Page AchatTicket - Issal Fès
- * Permet aux clients de consulter les lignes et d'acheter des billets.
- */
-
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -42,9 +37,7 @@ export default function AchatTicket() {
   const [heroVisible, setHeroVisible] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
 
-  /**
-   * ── Chargement initial des lignes ──
-   */
+  // Chargement initial des lignes et setup de l'Intersection Observer pour les animations
   useEffect(() => {
     fetchLignes();
 
@@ -86,7 +79,7 @@ export default function AchatTicket() {
   }
 
   /**
-   * ── Handler pour l'achat d'un billet ──
+   *  Handler pour l'achat d'un billet 
    */
   async function handleAchat() {
     if (!user) {
@@ -133,13 +126,10 @@ export default function AchatTicket() {
     l.arrivee.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  /**
-   * ── Rendu ──
-   */
   return (
     <div className="ticket-page" style={{ minHeight: "100vh" }}>
       
-      {/* ── HERO SECTION ── */}
+      {/*  HERO SECTION  */}
       <section 
         ref={heroRef}
         className={`contact-hero d-flex align-items-center justify-content-center position-relative scroll-reveal ${heroVisible ? "revealed" : ""}`}
@@ -165,7 +155,7 @@ export default function AchatTicket() {
         </div>
       </section>
 
-      {/* ── CONTENU PRINCIPAL ── */}
+      {/*  CONTENU PRINCIPAL  */}
       <section className="py-5" ref={contentRef}>
         <div className={`container scroll-reveal ${contentVisible ? "revealed" : ""}`}>
           
@@ -380,68 +370,6 @@ export default function AchatTicket() {
           )}
         </div>
       </section>
-
-      <style>{`
-        .ls-1 { letter-spacing: 1px; }
-        .timeline-border { border-color: var(--brand) !important; }
-        .timeline-dot { width: 12px; height: 12px; background-color: #fff !important; border-color: var(--brand) !important; }
-        
-        .timeline-border-retour { border-color: #adb5bd !important; }
-        .timeline-dot-retour { width: 12px; height: 12px; background-color: #fff !important; border-color: #adb5bd !important; }
-
-        /* Profile Box */
-        .profile-info-box {
-            background-color: #f8f9fa;
-            border-color: #eee !important;
-        }
-        .profile-icon-dark { color: #6c757d; }
-
-        /* Card Styles */
-        .ticket-card-item {
-            background: #ffffff;
-            border: 1.5px solid #eee;
-        }
-        .ticket-card-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        }
-        .ticket-card-item.selected {
-            border-color: var(--brand) !important;
-            background: var(--brand-light) !important;
-        }
-
-        /* Dark Mode Support */
-        [data-theme='dark'] .ticket-card-item {
-            background: rgba(255, 255, 255, 0.05) !important;
-            border-color: rgba(255, 255, 255, 0.1) !important;
-        }
-        [data-theme='dark'] .ticket-card-item.selected {
-            background: rgba(188, 200, 55, 0.15) !important;
-            border-color: var(--brand) !important;
-        }
-        [data-theme='dark'] .card-title-text { color: #f8f9fa !important; }
-        [data-theme='dark'] .description-text { color: #aaa !important; }
-        [data-theme='dark'] .brand-text { color: var(--brand) !important; }
-        
-        [data-theme='dark'] .details-panel {
-            background: rgba(30, 30, 30, 0.95) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        }
-        [data-theme='dark'] .itinerary-badge-aller { background-color: rgba(188, 200, 55, 0.2) !important; color: var(--brand) !important; }
-        [data-theme='dark'] .itinerary-badge-retour { background-color: rgba(255, 255, 255, 0.1) !important; color: #eee !important; }
-        [data-theme='dark'] .itinerary-text { color: #ccc !important; }
-        
-        [data-theme='dark'] .timeline-dot, 
-        [data-theme='dark'] .timeline-dot-retour { 
-            background-color: #222 !important; 
-        }
-
-        [data-theme='dark'] .profile-info-box {
-            background-color: rgba(255, 255, 255, 0.05) !important;
-            border-color: rgba(255, 255, 255, 0.1) !important;
-        }
-        [data-theme='dark'] .profile-icon-dark { color: #aaa; }
-      `}</style>
     </div>
   );
 }

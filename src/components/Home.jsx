@@ -1,9 +1,3 @@
-/**
- * Composant Home (Page d'accueil)
- * C'est la vitrine principale de l'application Issal Fes.
- * Elle présente les statistiques clés, la flotte de bus, les avis clients et les fonctionnalités.
- */
-
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -22,7 +16,7 @@ import {
 } from "react-bootstrap-icons";
 import "../index.css";
 
-// ── Données des statistiques (section 2) ──
+//  Données des statistiques (section 2) 
 const STATS = [
   { icon: <BusFrontFill />, number: "120+", label: "Autobus Actifs" },
   { icon: <GeoAltFill />, number: "65", label: "Lignes Couvertes" },
@@ -30,7 +24,7 @@ const STATS = [
   { icon: <ClockFill />, number: "18H", label: "Service Quotidien" },
 ];
 
-// ── Données des étiquettes de la flotte (section 3) ──
+//  Données des étiquettes de la flotte (section 3) 
 const TAGS = [
   [<ThermometerSnow />, "Climatisé"],
   [<PersonWheelchair />, "PMR Accessible"],
@@ -38,7 +32,7 @@ const TAGS = [
   [<Leaf />, "Éco-Friendly"],
 ];
 
-// ── Données des notes par étoile (section 4) ──
+//  Données des notes par étoile (section 4) 
 const RATING_BARS = [
   { star: 5, pct: 68 },
   { star: 4, pct: 22 },
@@ -47,7 +41,7 @@ const RATING_BARS = [
   { star: 1, pct: 1 },
 ];
 
-// ── Données des avis clients (section 4) ──
+//  Données des avis clients (section 4) 
 const REVIEWS = [
   {
     name: "Mehdi S.",
@@ -66,7 +60,7 @@ const REVIEWS = [
   },
 ];
 
-// ── Données des cartes de fonctionnalités (section 5) ──
+//  Données des cartes de fonctionnalités (section 5) 
 const FEATURES = [
   {
     icon: <ShieldFillCheck size={26} />,
@@ -114,7 +108,7 @@ export default function Home() {
   const [featuresVisible, setFeaturesVisible] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(false);
 
-  useEffect(() => {
+  useEffect(() => { // Configuration de l'IntersectionObserver pour chaque section à animer
     const sections = [
       { ref: statsRef, set: setStatsVisible },
       { ref: aboutRef, set: setAboutVisible },
@@ -144,7 +138,7 @@ export default function Home() {
 
   return (
     <div>
-      {/* ── SECTION 1 : HÉRO (Accroche principale) ── */}
+      {/*  SECTION 1 : HÉRO (Accroche principale)  */}
       <section className="home-hero d-flex align-items-center position-relative">
         <div className="home-hero-overlay" />
 
@@ -214,7 +208,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── SECTION 2 : STATISTIQUES ── */}
+      {/*  SECTION 2 : STATISTIQUES  */}
       <section
         ref={statsRef}
         className={`home-stats py-5 scroll-reveal ${statsVisible ? "revealed" : ""}`}
@@ -237,7 +231,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── SECTION 3 : LA FLOTTE ── */}
+      {/*  SECTION 3 : LA FLOTTE  */}
       <section
         ref={aboutRef}
         className={`home-section py-5 scroll-reveal ${aboutVisible ? "revealed" : ""}`}
@@ -311,7 +305,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── SECTION 4 : VIDÉO + AVIS ── */}
+      {/*  SECTION 4 : VIDÉO + AVIS  */}
       <section
         ref={videoRef}
         className={`home-section py-5 scroll-reveal ${videoVisible ? "revealed" : ""}`}
@@ -438,7 +432,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── SECTION 5 : FONCTIONNALITÉS ── */}
+      {/*  SECTION 5 : FONCTIONNALITÉS  */}
       <section
         ref={featuresRef}
         className={`home-section py-5 scroll-reveal ${featuresVisible ? "revealed" : ""}`}
@@ -479,7 +473,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── SECTION 6 : CTA ZELLIGE ── */}
+      {/*  SECTION 6 : CTA ZELLIGE  */}
       <section
         ref={ctaRef}
         className={`home-cta position-relative text-center overflow-hidden scroll-reveal ${ctaVisible ? "revealed" : ""}`}

@@ -1,9 +1,3 @@
-/**
- * Page "À propos"
- * Présente le matériel roulant (Bus Yutong), les fonctionnalités de l'application
- * et l'équipe de développement.
- */
-
 import React, { useState, useEffect, useRef } from "react";
 import {
   BusFrontFill,
@@ -31,17 +25,18 @@ export default function About() {
    * On utilise des Refs pour cibler les sections et des états (booféens) 
    * pour déclencher les classes CSS d'animation (.revealed).
    */
-  const heroRef = useRef(null);
-  const busRef = useRef(null);
-  const specsRef = useRef(null);
-  const appRef = useRef(null);
-  const teamRef = useRef(null);
+  // Ref c'est une référence à un élément DOM, utilisée pour l'observer avec IntersectionObserver (détection de visibilité à l'écran)
+  const heroRef = useRef(null); // Ref pour la section Hero
+  const busRef = useRef(null); // Ref pour la section Bus
+  const specsRef = useRef(null); // Ref pour la section Spécifications
+  const appRef = useRef(null); // Ref pour la section Application
+  const teamRef = useRef(null); // Ref pour la section Équipe
 
-  const [heroVisible, setHeroVisible] = useState(false);
-  const [busVisible, setBusVisible] = useState(false);
-  const [specsVisible, setSpecsVisible] = useState(false);
-  const [appVisible, setAppVisible] = useState(false);
-  const [teamVisible, setTeamVisible] = useState(false);
+  const [heroVisible, setHeroVisible] = useState(false); // État pour savoir si la section Hero est visible (pour déclencher l'animation)
+  const [busVisible, setBusVisible] = useState(false); // État pour savoir si la section Bus est visible
+  const [specsVisible, setSpecsVisible] = useState(false); // État pour savoir si la section Spécifications est visible
+  const [appVisible, setAppVisible] = useState(false); // État pour savoir si la section Application est visible
+  const [teamVisible, setTeamVisible] = useState(false); // État pour savoir si la section Équipe est visible
 
   // IntersectionObserver : Détecte quand un élément devient visible à l'écran
   useEffect(() => {
@@ -53,10 +48,10 @@ export default function About() {
       { ref: teamRef, set: setTeamVisible },
     ];
 
-    const observer = new IntersectionObserver(
+    const observer = new IntersectionObserver( // Callback qui s'exécute lorsque les éléments observés entrent ou sortent du viewport (zone visible de l'écran)
       (entries) => {
         entries.forEach((entry) => {
-          // Si la section entre dans le viewport (seuil de 15%)
+          // Si la section entre dans le viewport
           if (entry.isIntersecting) {
             const found = sections.find((s) => s.ref.current === entry.target);
             if (found) found.set(true); // Active l'animation pour cette section
@@ -85,7 +80,7 @@ export default function About() {
 
   return (
     <div className="about-page">
-      {/* ── HERO ── */}
+      {/*  HERO  */}
       <section
         ref={heroRef}
         className={`contact-hero d-flex align-items-center justify-content-center position-relative scroll-reveal ${heroVisible ? "revealed" : ""}`}
@@ -116,7 +111,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* ── BUS ── */}
+      {/*  BUS  */}
       <section
         ref={busRef}
         className={`contact-body py-5 scroll-reveal ${busVisible ? "revealed" : ""}`}
@@ -184,7 +179,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* ── SPECS ── */}
+      {/*  SPECS  */}
       <section
         ref={specsRef}
         className={`contact-body py-5 scroll-reveal ${specsVisible ? "revealed" : ""}`}
@@ -198,7 +193,7 @@ export default function About() {
           </div>
 
           <div className="row g-3 justify-content-center">
-            {[
+            {[ // Données techniques du bus sous forme d'objets avec valeur et label pour chaque spécification afin de les afficher dans des cartes
               { value: "12 m", label: "Longueur" },
               { value: "90 – 95 passagers", label: "Capacité" },
               { value: "Euro IV", label: "Norme émission" },
@@ -252,10 +247,10 @@ export default function About() {
         </div>
       </section>
 
-      {/* ── APP ── */}
+      {/*  APP  */}
       <section
         ref={appRef}
-        className={`contact-body py-5 scroll-reveal ${appVisible ? "revealed" : ""}`}
+        className={`contact-body py-5 scroll-reveal ${appVisible ? "revealed" : ""}`} // On ajoute la classe "revealed" pour déclencher l'animation CSS lorsque la section devient visible
       >
         <div className="container py-3">
           <div className="text-center mb-5 reveal-up">
@@ -273,7 +268,7 @@ export default function About() {
           </div>
 
           <div className="row g-4">
-            {[
+            {[ // Fonctionnalités clés de l'application sous forme d'objets avec icône, titre et description pour les afficher dans des cartes
               {
                 icon: <MapFill size={22} />,
                 title: "Lignes & Itinéraires",
@@ -314,7 +309,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* ── TEAM ── */}
+      {/*  TEAM  */}
       <section
         ref={teamRef}
         className={`contact-body py-5 scroll-reveal ${teamVisible ? "revealed" : ""}`}
@@ -344,8 +339,7 @@ export default function About() {
                   Laravel.
                 </p>
                 <div className="d-flex justify-content-center gap-3">
-                  <a
-                    href="#"
+                  <a href="#"
                     className="about-social-btn"
                     target="_blank"
                     rel="noreferrer"
@@ -410,8 +404,7 @@ export default function About() {
 
           <p className="text-center text-secondary mt-5 small reveal-up">
             <PeopleFill className="me-1" style={{ color: "var(--brand)" }} />
-            Projet réalisé avec passion dans le cadre du cursus TSDD à l'ISTA
-            Hay Al Adarissa, Fès — 2026.
+            Projet réalisé avec passion dans le cadre du Projet de Synthése — 2026.
           </p>
         </div>
       </section>

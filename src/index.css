@@ -3072,3 +3072,67 @@
   from { opacity: 0; transform: translateX(20px); }
   to { opacity: 1; transform: translateX(0); }
 }
+
+/* ============================================================
+   ACHAT TICKET PAGE STYLES
+   ============================================================ */
+.ls-1 { letter-spacing: 1px; }
+.timeline-border { border-color: var(--brand) !important; }
+.timeline-dot { width: 12px; height: 12px; background-color: #fff !important; border-color: var(--brand) !important; }
+
+.timeline-border-retour { border-color: #adb5bd !important; }
+.timeline-dot-retour { width: 12px; height: 12px; background-color: #fff !important; border-color: #adb5bd !important; }
+
+/* Profile Box */
+.profile-info-box {
+    background-color: #f8f9fa;
+    border-color: #eee !important;
+}
+.profile-icon-dark { color: #6c757d; }
+
+/* Card Styles */
+.ticket-card-item {
+    background: #ffffff;
+    border: 1.5px solid #eee;
+}
+.ticket-card-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+.ticket-card-item.selected {
+    border-color: var(--brand) !important;
+    background: var(--brand-light) !important;
+}
+
+/* Dark Mode Support */
+[data-theme='dark'] .ticket-card-item {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+[data-theme='dark'] .ticket-card-item.selected {
+    background: rgba(188, 200, 55, 0.15) !important;
+    border-color: var(--brand) !important;
+}
+[data-theme='dark'] .card-title-text { color: #f8f9fa !important; }
+[data-theme='dark'] .description-text { color: #aaa !important; }
+[data-theme='dark'] .brand-text { color: var(--brand) !important; }
+
+[data-theme='dark'] .details-panel {
+    background: rgba(30, 30, 30, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+[data-theme='dark'] .itinerary-badge-aller { background-color: rgba(188, 200, 55, 0.2) !important; color: var(--brand) !important; }
+[data-theme='dark'] .itinerary-badge-retour { background-color: rgba(255, 255, 255, 0.1) !important; color: #eee !important; }
+[data-theme='dark'] .itinerary-text { color: #ccc !important; }
+
+[data-theme='dark'] .timeline-dot, 
+[data-theme='dark'] .timeline-dot-retour { 
+    background-color: #222 !important; 
+}
+
+[data-theme='dark'] .profile-info-box {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+[data-theme='dark'] .profile-icon-dark { color: #aaa; }
+
