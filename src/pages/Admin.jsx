@@ -2,17 +2,20 @@ import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
-  PencilFill,
-  TrashFill,
   PlusCircleFill,
   BusFrontFill,
   Newspaper,
   ExclamationTriangleFill,
   ShieldFill,
   EnvelopeFill,
-  CheckCircleFill,
 } from "react-bootstrap-icons";
 import "../index.css";
+
+// Import des nouveaux composants de tableaux
+import LigneTable from "../components/admin/LigneTable";
+import ActualiteTable from "../components/admin/ActualiteTable";
+import AlerteTable from "../components/admin/AlerteTable";
+import MessageTable from "../components/admin/MessageTable";
 
 function useScrollReveal(threshold = 0.15) {
   const ref = useRef(null);
@@ -121,11 +124,6 @@ export default function Admin() {
     navigate("/ajout-news", { state: { activeTab, editMode: true, editId: item.id, editData: item } });
   };
 
-  const truncateText = (text, length = 60) => {
-    if (!text) return "";
-    return text.length > length ? text.substring(0, length) + "..." : text;
-  };
-
   return (
     <div className="admin-page">
       <section ref={heroRef} className={`contact-hero d-flex align-items-center justify-content-center position-relative scroll-reveal ${heroVisible ? "revealed" : ""}`}>
@@ -155,55 +153,19 @@ export default function Admin() {
 
             <div className="admin-table-wrap reveal-up" style={{ animationDelay: "0.15s" }}>
                 {activeTab === "lignes" && (
-                  <table className="admin-custom-table">
-                    <thead><tr><th>Numéro</th><th>Départ</th><th>Arrivée</th><th>Prix</th><th>Description</th><th>Actions</th></tr></thead>
-                    <tbody>
-                      {lignes.length === 0 ? <tr><td colSpan="6" className="admin-table-empty">Aucune donnée</td></tr> : 
-                        lignes.map(item => (<tr key={item.id}><td>{item.numero}</td><td>{item.depart}</td><td>{item.arrivee}</td><td>{item.prix} MAD</td><td>{truncateText(item.description)}</td>
-                          <td><div className="d-flex gap-2"><button className="admin-action-btn admin-action-btn--edit" onClick={() => handleEdit(item)}><PencilFill size={13} /></button>
-                          <button className="admin-action-btn admin-action-btn--delete" onClick={() => handleDelete(item.id)}><TrashFill size={13} /></button></div></td></tr>))
-                      }
-                    </tbody>
-                  </table>
+                  <LigneTable data={lignes} onEdit={handleEdit} onDelete={handleDelete} />
                 )}
 
                 {activeTab === "actualites" && (
-                  <table className="admin-custom-table">
-                    <thead><tr><th>Image</th><th>Titre</th><th>Contenu</th><th>Actions</th></tr></thead>
-                    <tbody>
-                      {actualites.length === 0 ? <tr><td colSpan="4" className="admin-table-empty">Aucune donnée</td></tr> : 
-                        actualites.map(item => (<tr key={item.id}><td>{item.image && <img src={item.image.startsWith("http") ? item.image : `http://127.0.0.1:8000${item.image}`} alt="" style={{width:40, height:40, objectFit:'cover', borderRadius:8}} />}</td>
-                          <td>{item.titre}</td><td>{truncateText(item.contenu)}</td><td><div className="d-flex gap-2"><button className="admin-action-btn admin-action-btn--edit" onClick={() => handleEdit(item)}><PencilFill size={13} /></button>
-                          <button className="admin-action-btn admin-action-btn--delete" onClick={() => handleDelete(item.id)}><TrashFill size={13} /></button></div></td></tr>))
-                      }
-                    </tbody>
-                  </table>
+                  <ActualiteTable data={actualites} onEdit={handleEdit} onDelete={handleDelete} />
                 )}
 
                 {activeTab === "alertes" && (
-                  <table className="admin-custom-table">
-                    <thead><tr><th>Ligne</th><th>Type</th><th>Message</th><th>Statut</th><th>Actions</th></tr></thead>
-                    <tbody>
-                      {alertes.length === 0 ? <tr><td colSpan="5" className="admin-table-empty">Aucune donnée</td></tr> : 
-                        alertes.map(item => (<tr key={item.id}><td>{item.ligne?.numero || item.ligne_id}</td><td><span className={`admin-badge admin-badge--${item.type === 'retard' ? 'warning' : item.type === 'perturbation' ? 'danger' : 'info'}`}>{item.type}</span></td>
-                          <td>{truncateText(item.message)}</td><td><span className={`admin-badge admin-badge--${item.statut === 'active' ? 'success' : 'muted'}`}>{item.statut}</span></td>
-                          <td><div className="d-flex gap-2"><button className="admin-action-btn admin-action-btn--edit" onClick={() => handleEdit(item)}><PencilFill size={13} /></button>
-                          <button className="admin-action-btn admin-action-btn--delete" onClick={() => handleDelete(item.id)}><TrashFill size={13} /></button></div></td></tr>))
-                      }
-                    </tbody>
-                  </table>
+                  <AlerteTable data={alertes} onEdit={handleEdit} onDelete={handleDelete} />
                 )}
 
                 {activeTab === "messages" && (
-                  <table className="admin-custom-table">
-                    <thead><tr><th>Nom</th><th>Email</th><th>Sujet</th><th>Message</th><th>Actions</th></tr></thead>
-                    <tbody>
-                      {messages.length === 0 ? <tr><td colSpan="5" className="admin-table-empty">Aucun message</td></tr> : 
-                        messages.map(item => (<tr key={item.id}><td>{item.name}</td><td>{item.email}</td><td>{item.subject}</td><td>{truncateText(item.message)}</td>
-                          <td><button className="admin-action-btn admin-action-btn--delete" onClick={() => handleDelete(item.id)}><TrashFill size={13} /></button></td></tr>))
-                      }
-                    </tbody>
-                  </table>
+                  <MessageTable data={messages} onDelete={handleDelete} />
                 )}
             </div>
           </div>

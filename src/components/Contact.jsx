@@ -387,8 +387,7 @@ export default function Contact() {
                           </span>
                           <span className="contact-subscribe-desc">
                             Recevez les nouvelles lignes, horaires et offres
-                            directement par email. (Envoi des emails non
-                            configuré manque de temps)
+                            directement par email.
                           </span>
                         </div>
                       </label>
